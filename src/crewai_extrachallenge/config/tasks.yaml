@@ -1,17 +1,75 @@
-research_task:
+data_analysis_task:
   description: >
-    Conduct a thorough research about {topic}
-    Make sure you find any interesting and relevant information given
-    the current year is {current_year}.
+    Analyze the credit card transaction dataset ({dataset_path}) to perform comprehensive statistical analysis.
+    Use the CSV RAG Search tool to explore the dataset structure, identify data quality issues, and calculate key statistics.
+    Focus on understanding the distribution of features V1-V28 (PCA components), Time, and Amount columns.
+    Identify any missing values, outliers, or anomalies in the data.
+    If the dataset contains the 'Class' column, analyze the distribution of fraud vs legitimate transactions.
+    Provide statistical summaries including mean, median, standard deviation, and quartiles for key features.
   expected_output: >
-    A list with 10 bullet points of the most relevant information about {topic}
-  agent: researcher
+    A detailed statistical analysis report in markdown format including:
+    - Dataset overview (number of transactions, features, data types)
+    - Statistical summaries for all features
+    - Data quality assessment (missing values, outliers)
+    - Distribution analysis of fraud vs legitimate transactions (if Class column exists)
+    - Key findings and data preprocessing recommendations
+    Format as structured markdown with clear sections and tables
+  agent: data_analyst
+
+pattern_recognition_task:
+  description: >
+    Using the CSV RAG Search tool, identify fraud patterns and anomalies in the credit card transaction dataset.
+    Search for unusual patterns in transaction amounts, timing, and PCA feature combinations.
+    Look for correlations between features that might indicate fraudulent behavior.
+    If training data with 'Class' labels is available, analyze patterns that distinguish fraud from legitimate transactions.
+    Use semantic queries to find transactions with suspicious characteristics.
+    Identify potential fraud indicators and rule-based patterns that could be used for classification.
+  expected_output: >
+    A comprehensive pattern analysis report in markdown format including:
+    - Identified fraud patterns and their characteristics
+    - Unusual transaction patterns and anomalies
+    - Feature correlations that indicate fraud
+    - Time-based fraud patterns
+    - Amount-based fraud indicators
+    - Recommended rules or thresholds for fraud detection
+    Present findings with clear explanations and supporting evidence
+  agent: pattern_recognition_agent
+
+classification_task:
+  description: >
+    Based on the data analysis and pattern recognition findings, classify transactions in the target dataset.
+    If working with unlabeled data, apply the identified patterns and statistical thresholds to classify transactions as fraud or legitimate.
+    Provide confidence scores for each classification decision.
+    Consider the cost implications of false positives vs false negatives in fraud detection.
+    Synthesize insights from previous analyses to make informed classification decisions.
+  expected_output: >
+    A classification analysis report in markdown format including:
+    - Classification methodology and criteria used
+    - Summary statistics of classifications (number of fraud vs legitimate)
+    - Confidence levels and uncertainty analysis
+    - Risk assessment for different transaction types
+    - Recommendations for threshold adjustments
+    - Cost-benefit analysis of classification decisions
+    Include tables showing classification results and confidence metrics
+  agent: classification_agent
 
 reporting_task:
   description: >
-    Review the context you got and expand each topic into a full section for a report.
-    Make sure the report is detailed and contains any and all relevant information.
+    Create a comprehensive fraud detection analysis report that synthesizes all findings from data analysis, pattern recognition, and classification tasks.
+    The report should be suitable for technical and business stakeholders.
+    Include executive summary, detailed methodology, findings, and actionable recommendations.
+    Incorporate tables for statistical summaries and suggest visualizations (charts/graphs) that would help illustrate the findings.
+    Ensure the report is well-structured with clear sections and professional formatting.
   expected_output: >
-    A fully fledged report with the main topics, each with a full section of information.
-    Formatted as markdown without '```'
+    A comprehensive fraud detection report in markdown format including:
+    - Executive Summary with key findings and recommendations
+    - Methodology section explaining the analysis approach
+    - Data Analysis Results with statistical tables
+    - Fraud Pattern Analysis with identified patterns
+    - Classification Results with performance metrics
+    - Visualization recommendations (charts, graphs, heatmaps)
+    - Risk Assessment and Business Impact
+    - Actionable Recommendations for fraud prevention
+    - Technical Appendix with detailed findings
+    Format as professional markdown report with proper headers, tables, and structure
   agent: reporting_analyst
