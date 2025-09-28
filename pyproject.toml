@@ -15,6 +15,7 @@ run_crew = "crewai_extrachallenge.main:run"
 train = "crewai_extrachallenge.main:train"
 replay = "crewai_extrachallenge.main:replay"
 test = "crewai_extrachallenge.main:test"
+analyze_dataset = "crewai_extrachallenge.main:analyze_dataset"
 
 [build-system]
 requires = ["hatchling"]

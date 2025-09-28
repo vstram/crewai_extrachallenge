@@ -1,6 +1,7 @@
 from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
 from crewai.agents.agent_builder.base_agent import BaseAgent
+from crewai_tools import CSVSearchTool
 from typing import List
 # If you want to run a snippet of code before or after the crew starts,
 # you can use the @before_kickoff and @after_kickoff decorators
@@ -8,7 +9,7 @@ from typing import List
 
 @CrewBase
 class CrewaiExtrachallenge():
-    """CrewaiExtrachallenge crew"""
+    """Credit Card Fraud Detection Crew"""
 
     agents: List[BaseAgent]
     tasks: List[Task]
@@ -16,13 +17,28 @@ class CrewaiExtrachallenge():
     # Learn more about YAML configuration files here:
     # Agents: https://docs.crewai.com/concepts/agents#yaml-configuration-recommended
     # Tasks: https://docs.crewai.com/concepts/tasks#yaml-configuration-recommended
-    
-    # If you would like to add tools to your agents, you can learn more about it here:
-    # https://docs.crewai.com/concepts/agents#agent-tools
+
+    # Fraud detection agents with specialized tools
     @agent
-    def researcher(self) -> Agent:
+    def data_analyst(self) -> Agent:
         return Agent(
-            config=self.agents_config['researcher'], # type: ignore[index]
+            config=self.agents_config['data_analyst'], # type: ignore[index]
+            tools=[CSVSearchTool()],
+            verbose=True
+        )
+
+    @agent
+    def pattern_recognition_agent(self) -> Agent:
+        return Agent(
+            config=self.agents_config['pattern_recognition_agent'], # type: ignore[index]
+            tools=[CSVSearchTool()],
+            verbose=True
+        )
+
+    @agent
+    def classification_agent(self) -> Agent:
+        return Agent(
+            config=self.agents_config['classification_agent'], # type: ignore[index]
             verbose=True
         )
 
@@ -33,20 +49,30 @@ class CrewaiExtrachallenge():
             verbose=True
         )
 
-    # To learn more about structured task outputs,
-    # task dependencies, and task callbacks, check out the documentation:
-    # https://docs.crewai.com/concepts/tasks#overview-of-a-task
+    # Fraud detection task pipeline
     @task
-    def research_task(self) -> Task:
+    def data_analysis_task(self) -> Task:
         return Task(
-            config=self.tasks_config['research_task'], # type: ignore[index]
+            config=self.tasks_config['data_analysis_task'], # type: ignore[index]
+        )
+
+    @task
+    def pattern_recognition_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['pattern_recognition_task'], # type: ignore[index]
+        )
+
+    @task
+    def classification_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['classification_task'], # type: ignore[index]
         )
 
     @task
     def reporting_task(self) -> Task:
         return Task(
             config=self.tasks_config['reporting_task'], # type: ignore[index]
-            output_file='report.md'
+            output_file='fraud_detection_report.md'
         )
 
     @crew
