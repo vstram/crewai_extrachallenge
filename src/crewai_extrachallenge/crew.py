@@ -3,6 +3,7 @@ from crewai.project import CrewBase, agent, crew, task
 from crewai.agents.agent_builder.base_agent import BaseAgent
 from crewai_tools import CSVSearchTool
 from typing import List
+from .tools.visualization_tool import VisualizationTool
 # If you want to run a snippet of code before or after the crew starts,
 # you can use the @before_kickoff and @after_kickoff decorators
 # https://docs.crewai.com/concepts/crews#example-crew-class-with-decorators
@@ -23,7 +24,7 @@ class CrewaiExtrachallenge():
     def data_analyst(self) -> Agent:
         return Agent(
             config=self.agents_config['data_analyst'], # type: ignore[index]
-            tools=[CSVSearchTool()],
+            tools=[CSVSearchTool(), VisualizationTool()],
             verbose=True
         )
 
@@ -31,7 +32,7 @@ class CrewaiExtrachallenge():
     def pattern_recognition_agent(self) -> Agent:
         return Agent(
             config=self.agents_config['pattern_recognition_agent'], # type: ignore[index]
-            tools=[CSVSearchTool()],
+            tools=[CSVSearchTool(), VisualizationTool()],
             verbose=True
         )
 
@@ -39,6 +40,7 @@ class CrewaiExtrachallenge():
     def classification_agent(self) -> Agent:
         return Agent(
             config=self.agents_config['classification_agent'], # type: ignore[index]
+            tools=[VisualizationTool()],
             verbose=True
         )
 
@@ -46,6 +48,7 @@ class CrewaiExtrachallenge():
     def reporting_analyst(self) -> Agent:
         return Agent(
             config=self.agents_config['reporting_analyst'], # type: ignore[index]
+            tools=[VisualizationTool()],
             verbose=True
         )
 
@@ -72,7 +75,7 @@ class CrewaiExtrachallenge():
     def reporting_task(self) -> Task:
         return Task(
             config=self.tasks_config['reporting_task'], # type: ignore[index]
-            output_file='fraud_detection_report.md'
+            output_file='reports/fraud_detection_report.md'
         )
 
     @crew

@@ -30,7 +30,8 @@ def run():
 
     try:
         CrewaiExtrachallenge().crew().kickoff(inputs=inputs)
-        print(f"Fraud detection analysis completed. Report saved to: fraud_detection_report.md")
+        print(f"Fraud detection analysis completed. Report saved to: reports/fraud_detection_report.md")
+        print(f"Charts and images saved to: reports/images/")
     except Exception as e:
         raise Exception(f"An error occurred while running the fraud detection crew: {e}")
 
@@ -127,6 +128,7 @@ def analyze_dataset():
 
     try:
         CrewaiExtrachallenge().crew().kickoff(inputs=inputs)
-        print(f"Analysis completed. Report saved to: fraud_detection_report.md")
+        print(f"Analysis completed. Report saved to: reports/fraud_detection_report.md")
+        print(f"Charts and images saved to: reports/images/")
     except Exception as e:
         raise Exception(f"An error occurred while analyzing the dataset: {e}")

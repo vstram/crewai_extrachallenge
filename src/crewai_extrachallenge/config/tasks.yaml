@@ -9,11 +9,15 @@ data_analysis_task:
   expected_output: >
     A detailed statistical analysis report in markdown format including:
     - Dataset overview (number of transactions, features, data types)
-    - Statistical summaries for all features
+    - Statistical summaries for all features in table format
     - Data quality assessment (missing values, outliers)
     - Distribution analysis of fraud vs legitimate transactions (if Class column exists)
     - Key findings and data preprocessing recommendations
-    Format as structured markdown with clear sections and tables
+    MUST include these visualizations using the Fraud Detection Visualization Tool:
+    - Create a 'fraud_comparison' chart showing fraud vs legitimate transaction counts
+    - Create a 'distribution' chart showing transaction amount distributions
+    - Create a 'correlation_heatmap' for feature correlations
+    Include all chart images in the markdown report with proper image references
   agent: data_analyst
 
 pattern_recognition_task:
@@ -26,13 +30,18 @@ pattern_recognition_task:
     Identify potential fraud indicators and rule-based patterns that could be used for classification.
   expected_output: >
     A comprehensive pattern analysis report in markdown format including:
-    - Identified fraud patterns and their characteristics
+    - Identified fraud patterns and their characteristics in table format
     - Unusual transaction patterns and anomalies
     - Feature correlations that indicate fraud
     - Time-based fraud patterns
     - Amount-based fraud indicators
     - Recommended rules or thresholds for fraud detection
-    Present findings with clear explanations and supporting evidence
+    MUST include these visualizations using the Fraud Detection Visualization Tool:
+    - Create a 'scatter' plot showing relationship between key features
+    - Create a 'time_series' chart for fraud incidents over time
+    - Create a 'feature_importance' chart highlighting most predictive features
+    - Create a 'box_plot' comparing feature distributions by class
+    Include all chart images in the markdown report with proper image references
   agent: pattern_recognition_agent
 
 classification_task:
@@ -45,12 +54,14 @@ classification_task:
   expected_output: >
     A classification analysis report in markdown format including:
     - Classification methodology and criteria used
-    - Summary statistics of classifications (number of fraud vs legitimate)
-    - Confidence levels and uncertainty analysis
+    - Summary statistics of classifications in table format (number of fraud vs legitimate)
+    - Confidence levels and uncertainty analysis with tables
     - Risk assessment for different transaction types
     - Recommendations for threshold adjustments
     - Cost-benefit analysis of classification decisions
-    Include tables showing classification results and confidence metrics
+    MUST include this visualization using the Fraud Detection Visualization Tool:
+    - Create a 'histogram' chart showing confidence score distributions
+    Include the chart image in the markdown report with proper image reference
   agent: classification_agent
 
 reporting_task:
@@ -64,12 +75,13 @@ reporting_task:
     A comprehensive fraud detection report in markdown format including:
     - Executive Summary with key findings and recommendations
     - Methodology section explaining the analysis approach
-    - Data Analysis Results with statistical tables
-    - Fraud Pattern Analysis with identified patterns
-    - Classification Results with performance metrics
-    - Visualization recommendations (charts, graphs, heatmaps)
-    - Risk Assessment and Business Impact
+    - Data Analysis Results with statistical tables and embedded chart images
+    - Fraud Pattern Analysis with identified patterns and embedded chart images
+    - Classification Results with performance metrics and embedded chart images
+    - Risk Assessment and Business Impact with supporting visualizations
     - Actionable Recommendations for fraud prevention
     - Technical Appendix with detailed findings
-    Format as professional markdown report with proper headers, tables, and structure
+    The report MUST consolidate all previously generated charts and images from other agents.
+    Ensure all images are properly referenced using markdown image syntax: ![Description](path)
+    Format as professional markdown report with proper headers, tables, and embedded visualizations
   agent: reporting_analyst
