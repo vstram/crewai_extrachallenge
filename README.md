@@ -22,6 +22,8 @@ The crew of AI agents is designed to:
 3. Classify transactions as fraudulent or legitimate based on learned patterns
 4. Provide comprehensive analysis reports with confidence metrics and insights
 
+The system leverages **CrewAI tools**, particularly the **CSV RAG Search tool**, to perform semantic analysis and intelligent querying of large CSV datasets containing credit card transactions.
+
 ## Installation
 
 Ensure you have Python >=3.10 <3.14 installed on your system. This project uses [UV](https://docs.astral.sh/uv/) for dependency management and package handling, offering a seamless setup and execution experience.
@@ -69,6 +71,27 @@ The Credit Card Fraud Detection Crew is composed of specialized AI agents, each 
 - **Reporting Agent**: Generates comprehensive analysis reports
 
 Tasks are defined in `config/tasks.yaml`, and agent configurations are outlined in `config/agents.yaml`.
+
+## CrewAI Tools Integration
+
+### CSV RAG Search Tool
+
+This project utilizes the **CSV RAG Search tool** from CrewAI for advanced analysis of credit card transaction datasets:
+
+**Key Capabilities:**
+- **Semantic Search**: Perform intelligent queries on CSV data using natural language
+- **Large Dataset Support**: Handle potentially huge CSV files efficiently
+- **RAG-powered Analysis**: Combine retrieval and generation for comprehensive insights
+- **Fraud Pattern Detection**: Query for unusual transaction patterns and anomalies
+
+**Usage Examples for Fraud Detection:**
+- "Find transactions with amounts significantly higher than average"
+- "Identify patterns in V1-V28 PCA components that correlate with fraud"
+- "Show transactions that occur at unusual time intervals"
+- "Analyze transaction amounts for potential fraud indicators"
+
+**Integration:**
+The CSV RAG Search tool is integrated into the agent workflows through the `crewai[tools]` dependency, allowing agents to perform sophisticated analysis on transaction data beyond traditional statistical methods.
 
 ## Support
 

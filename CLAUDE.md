@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a CrewAI-based credit card fraud detection system using multiple AI agents to analyze transaction datasets and classify them as fraudulent or legitimate. The project uses numerical features (V1-V28 from PCA transformation, Time, Amount) to train on labeled data and classify unlabeled transactions.
 
+The system leverages CrewAI tools, particularly the CSV RAG Search tool, to perform semantic analysis of large CSV datasets containing credit card transactions.
+
 ## Development Commands
 
 ### Running the Application
@@ -82,9 +84,47 @@ The system uses a CrewBase decorator pattern with:
 - Task definitions use the `@task` decorator with output file specifications
 - Custom tools inherit from `BaseTool` with Pydantic input schemas
 
+## CrewAI Tools Integration
+
+### CSV RAG Search Tool
+This project uses the CSV RAG Search tool for semantic analysis of credit card transaction datasets:
+
+**Installation**: Already included with `crewai[tools]` dependency
+
+**Usage Patterns**:
+```python
+from crewai_tools import CSVSearchTool
+
+# For specific CSV file
+csv_tool = CSVSearchTool(csv='path/to/transactions.csv')
+
+# For runtime CSV file selection
+csv_tool = CSVSearchTool()
+```
+
+**Key Features**:
+- Semantic search within CSV file contents using RAG
+- Supports large transaction datasets
+- Customizable LLM providers (OpenAI, Google, Anthropic)
+- Configurable embedding models
+
+**Use Cases for Fraud Detection**:
+- Query transaction patterns: "Find transactions with unusual amounts"
+- Identify anomalies: "Show transactions that deviate from normal patterns"
+- Feature analysis: "Analyze V1-V28 PCA components for fraud indicators"
+- Time-based queries: "Find suspicious transactions in specific time windows"
+
+### Tool Integration in Agents
+Tools are assigned to agents in the YAML configuration:
+```yaml
+agent_name:
+  tools:
+    - CSVSearchTool
+```
+
 ### Extending the System
 To adapt for fraud detection:
-1. Modify `config/agents.yaml` to define fraud detection agents (Data Analyst, Pattern Recognition, Classification, Reporting)
-2. Update `config/tasks.yaml` for fraud detection tasks
-3. Create CSV processing tools in `tools/` directory
+1. Modify `config/agents.yaml` to define fraud detection agents with CSV RAG Search tool
+2. Update `config/tasks.yaml` for fraud detection tasks using CSV analysis
+3. Create additional CSV processing tools in `tools/` directory if needed
 4. Update input parameters in `main.py` to accept dataset paths instead of topic strings
