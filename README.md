@@ -1,6 +1,26 @@
-# CrewaiExtrachallenge Crew
+# Credit Card Fraud Detection Crew
 
-Welcome to the CrewaiExtrachallenge Crew project, powered by [crewAI](https://crewai.com). This template is designed to help you set up a multi-agent AI system with ease, leveraging the powerful and flexible framework provided by crewAI. Our goal is to enable your agents to collaborate effectively on complex tasks, maximizing their collective intelligence and capabilities.
+Welcome to the Credit Card Fraud Detection Crew project, powered by [crewAI](https://crewai.com). This multi-agent AI system is specifically designed to analyze large CSV datasets containing credit card transactions and classify them as fraudulent or legitimate. The project leverages the collaborative intelligence of specialized AI agents to perform statistical and mathematical analysis on transaction data for accurate fraud detection.
+
+## Project Overview
+
+This application analyzes CSV datasets containing credit card transactions with the following characteristics:
+
+- **Numerical Data Only**: All features in the dataset are numerical values
+- **PCA-Transformed Features**: Features V1 through V28 are principal components obtained via PCA transformation for confidentiality
+- **Original Features**:
+  - `Time`: Seconds elapsed between each transaction and the first transaction in the dataset
+  - `Amount`: Transaction amount (useful for cost analysis)
+- **Classification Target**:
+  - `Class`: Binary classification where 1 indicates fraud and 0 indicates legitimate transactions
+
+## Mission
+
+The crew of AI agents is designed to:
+1. Train on labeled datasets (with `Class` feature) to understand fraud patterns
+2. Analyze unlabeled datasets (without `Class` feature) using statistical and mathematical methods
+3. Classify transactions as fraudulent or legitimate based on learned patterns
+4. Provide comprehensive analysis reports with confidence metrics and insights
 
 ## Installation
 
@@ -37,11 +57,18 @@ $ crewai run
 
 This command initializes the crewai_extrachallenge Crew, assembling the agents and assigning them tasks as defined in your configuration.
 
-This example, unmodified, will run the create a `report.md` file with the output of a research on LLMs in the root folder.
+This will initialize the fraud detection crew and generate analysis reports on your credit card transaction datasets.
 
 ## Understanding Your Crew
 
-The crewai_extrachallenge Crew is composed of multiple AI agents, each with unique roles, goals, and tools. These agents collaborate on a series of tasks, defined in `config/tasks.yaml`, leveraging their collective skills to achieve complex objectives. The `config/agents.yaml` file outlines the capabilities and configurations of each agent in your crew.
+The Credit Card Fraud Detection Crew is composed of specialized AI agents, each with unique roles in the fraud detection pipeline. These agents collaborate on analyzing transaction data, identifying patterns, and classifying transactions. The crew includes:
+
+- **Data Analyst Agent**: Performs statistical analysis and data preprocessing
+- **Pattern Recognition Agent**: Identifies fraud patterns and anomalies
+- **Classification Agent**: Makes final fraud/legitimate classifications
+- **Reporting Agent**: Generates comprehensive analysis reports
+
+Tasks are defined in `config/tasks.yaml`, and agent configurations are outlined in `config/agents.yaml`.
 
 ## Support
 
@@ -51,4 +78,4 @@ For support, questions, or feedback regarding the CrewaiExtrachallenge Crew or c
 - [Join our Discord](https://discord.com/invite/X4JWnZnxPb)
 - [Chat with our docs](https://chatg.pt/DWjSBZn)
 
-Let's create wonders together with the power and simplicity of crewAI.
+Let's build intelligent fraud detection systems together with the power and simplicity of crewAI.
