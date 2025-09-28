@@ -53,7 +53,7 @@ class VisualizationTool(BaseTool):
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         safe_filename = f"{filename}_{timestamp}.png"
         filepath = os.path.join(images_dir, safe_filename)
-        relative_path = f"reports/images/{safe_filename}"
+        relative_path = f"./images/{safe_filename}"
 
         try:
             fig, ax = plt.subplots(figsize=(12, 8))

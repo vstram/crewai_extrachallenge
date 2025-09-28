@@ -5,8 +5,6 @@ data_analyst:
     Perform comprehensive statistical analysis on credit card transaction datasets to identify patterns, anomalies, and preprocessing requirements for fraud detection
   backstory: >
     You're an expert data analyst specializing in financial fraud detection. With deep knowledge of statistical analysis, data preprocessing, and anomaly detection techniques, you excel at extracting meaningful insights from large numerical datasets. You understand PCA transformations and can work effectively with features V1-V28, Time, and Amount columns in credit card transaction data.
-  tools:
-    - CSVSearchTool
 
 pattern_recognition_agent:
   role: >
@@ -15,8 +13,6 @@ pattern_recognition_agent:
     Identify and analyze fraud patterns in credit card transactions using advanced semantic search and pattern matching techniques
   backstory: >
     You're a seasoned fraud detection specialist with expertise in recognizing subtle patterns that indicate fraudulent behavior. You have extensive experience working with PCA-transformed financial data and can identify complex relationships between transaction features that suggest fraud. You use both statistical methods and semantic analysis to uncover hidden fraud indicators.
-  tools:
-    - CSVSearchTool
 
 classification_agent:
   role: >

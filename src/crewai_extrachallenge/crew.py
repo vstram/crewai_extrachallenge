@@ -4,6 +4,7 @@ from crewai.agents.agent_builder.base_agent import BaseAgent
 from crewai_tools import CSVSearchTool
 from typing import List
 from .tools.visualization_tool import VisualizationTool
+import os
 # If you want to run a snippet of code before or after the crew starts,
 # you can use the @before_kickoff and @after_kickoff decorators
 # https://docs.crewai.com/concepts/crews#example-crew-class-with-decorators
@@ -22,17 +23,25 @@ class CrewaiExtrachallenge():
     # Fraud detection agents with specialized tools
     @agent
     def data_analyst(self) -> Agent:
+        # Configure CSVSearchTool with the dataset path
+        dataset_path = os.getenv('DATASET_PATH', 'data/credit_card_transactions.csv')
+        csv_tool = CSVSearchTool(csv=dataset_path)
+
         return Agent(
             config=self.agents_config['data_analyst'], # type: ignore[index]
-            tools=[CSVSearchTool(), VisualizationTool()],
+            tools=[csv_tool, VisualizationTool()],
             verbose=True
         )
 
     @agent
     def pattern_recognition_agent(self) -> Agent:
+        # Configure CSVSearchTool with the dataset path
+        dataset_path = os.getenv('DATASET_PATH', 'data/credit_card_transactions.csv')
+        csv_tool = CSVSearchTool(csv=dataset_path)
+
         return Agent(
             config=self.agents_config['pattern_recognition_agent'], # type: ignore[index]
-            tools=[CSVSearchTool(), VisualizationTool()],
+            tools=[csv_tool, VisualizationTool()],
             verbose=True
         )
 
