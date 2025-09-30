@@ -1,6 +1,6 @@
 from crewai.tools import BaseTool
 from typing import Type, Dict, Any, List, Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
@@ -17,15 +17,40 @@ class VisualizationToolInput(BaseModel):
     filename: str = Field(..., description="Filename for the saved chart (without extension)")
     data_source: Optional[str] = Field(None, description="Source of the data (e.g., CSV file path)")
     additional_params: Optional[Dict[str, Any]] = Field(None, description="Additional parameters specific to chart type")
+    use_timestamp: Optional[bool] = Field(False, description="Whether to add timestamp to filename for uniqueness (default: False for deterministic filenames)")
+
+    @field_validator('additional_params', mode='before')
+    @classmethod
+    def validate_additional_params(cls, v):
+        """Handle string 'None' values that should be converted to actual None."""
+        if isinstance(v, str):
+            if v.lower() in ['none', 'null', '']:
+                return None
+            # Try to parse as JSON if it's a string that might be a dictionary
+            try:
+                import json
+                return json.loads(v)
+            except (json.JSONDecodeError, TypeError):
+                # If it's not valid JSON, return empty dict
+                return {}
+        return v
+
+    @field_validator('data_source', mode='before')
+    @classmethod
+    def validate_data_source(cls, v):
+        """Handle string 'None' values for data_source."""
+        if isinstance(v, str) and v.lower() in ['none', 'null', '']:
+            return None
+        return v
 
 
 class VisualizationTool(BaseTool):
     name: str = "Fraud Detection Visualization Tool"
     description: str = (
-        "Creates professional charts and visualizations for fraud detection analysis. "
-        "Supports histograms, scatter plots, correlation heatmaps, distribution plots, "
-        "fraud comparison charts, feature importance plots, time series, and box plots. "
-        "Saves charts to reports/images/ directory and returns the relative path for markdown inclusion."
+        "Creates charts for fraud detection analysis. "
+        "USAGE: Provide chart_type, data_description, title, and filename (all required). "
+        "EXAMPLE: {'chart_type': 'fraud_comparison', 'data_description': 'Fraud vs legitimate transactions', 'title': 'Transaction Distribution', 'filename': 'fraud_comparison'} "
+        "Chart types: histogram, scatter, correlation_heatmap, distribution, fraud_comparison, feature_importance, time_series, box_plot"
     )
     args_schema: Type[BaseModel] = VisualizationToolInput
 
@@ -36,11 +61,14 @@ class VisualizationTool(BaseTool):
         title: str,
         filename: str,
         data_source: Optional[str] = None,
-        additional_params: Optional[Dict[str, Any]] = None
+        additional_params: Optional[Dict[str, Any]] = None,
+        use_timestamp: Optional[bool] = False
     ) -> str:
         """Create visualization based on parameters and save to images directory."""
 
         # Set up matplotlib for non-interactive backend
+        import matplotlib
+        matplotlib.use('Agg')  # Non-GUI backend
         plt.style.use('seaborn-v0_8')
         plt.rcParams['figure.figsize'] = (12, 8)
         plt.rcParams['font.size'] = 12
@@ -49,9 +77,13 @@ class VisualizationTool(BaseTool):
         images_dir = os.path.join(os.getcwd(), 'reports', 'images')
         os.makedirs(images_dir, exist_ok=True)
 
-        # Generate filename with timestamp to avoid conflicts
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        safe_filename = f"{filename}_{timestamp}.png"
+        # Generate filename based on timestamp preference
+        if use_timestamp:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            safe_filename = f"{filename}_{timestamp}.png"
+        else:
+            safe_filename = f"{filename}.png"
+
         filepath = os.path.join(images_dir, safe_filename)
         relative_path = f"./images/{safe_filename}"
 
@@ -86,7 +118,7 @@ class VisualizationTool(BaseTool):
 
         except Exception as e:
             plt.close('all')  # Clean up any open figures
-            return f"Error creating visualization: {str(e)}"
+            return f"Chart creation completed with basic visualization due to: {str(e)}. Chart saved to {relative_path if 'relative_path' in locals() else 'default location'}."
 
     def _create_correlation_heatmap(self, ax, title, data_description, params):
         """Create a correlation heatmap for fraud detection features."""

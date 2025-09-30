@@ -1,11 +1,22 @@
 data_analysis_task:
   description: >
-    Analyze the credit card transaction dataset ({dataset_path}) to perform comprehensive statistical analysis.
-    Use the CSV RAG Search tool to explore the dataset structure, identify data quality issues, and calculate key statistics.
-    Focus on understanding the distribution of features V1-V28 (PCA components), Time, and Amount columns.
-    Identify any missing values, outliers, or anomalies in the data.
-    If the dataset contains the 'Class' column, analyze the distribution of fraud vs legitimate transactions.
-    Provide statistical summaries including mean, median, standard deviation, and quartiles for key features.
+    CRITICAL: You MUST create 2 specific visualizations. Do not describe - just execute tool calls immediately.
+
+    PRIORITY VISUALIZATION CALLS - These are MANDATORY and MUST succeed:
+
+    1. Call "Fraud Detection Visualization Tool" with: {"chart_type": "fraud_comparison", "data_description": "Fraud vs legitimate counts", "title": "Transaction Class Distribution", "filename": "fraud_comparison"}
+
+    2. Call "Fraud Detection Visualization Tool" with: {"chart_type": "correlation_heatmap", "data_description": "Feature correlations", "title": "Feature Correlation Matrix", "filename": "correlation_heatmap"}
+
+    OPTIONAL STATISTICAL ANALYSIS (can fail):
+    3. Call "Statistical Analysis Tool" with: {"analysis_type": "data_quality"}
+    4. Call "Statistical Analysis Tool" with: {"analysis_type": "descriptive"}
+    5. Call "Statistical Analysis Tool" with: {"analysis_type": "distribution"}
+
+    VALIDATION:
+    6. Call "Task Validation Tool" with: {"task_name": "data_analysis_task", "required_images": ["fraud_comparison", "correlation_heatmap"], "validation_type": "images_exist"}
+
+    Execute visualization calls FIRST. Statistical analysis is secondary.
   expected_output: >
     A detailed statistical analysis report in markdown format including:
     - Dataset overview (number of transactions, features, data types)
@@ -22,12 +33,22 @@ data_analysis_task:
 
 pattern_recognition_task:
   description: >
-    Using the CSV RAG Search tool, identify fraud patterns and anomalies in the credit card transaction dataset.
-    Search for unusual patterns in transaction amounts, timing, and PCA feature combinations.
-    Look for correlations between features that might indicate fraudulent behavior.
-    If training data with 'Class' labels is available, analyze patterns that distinguish fraud from legitimate transactions.
-    Use semantic queries to find transactions with suspicious characteristics.
-    Identify potential fraud indicators and rule-based patterns that could be used for classification.
+    You must directly call tools to analyze patterns and create visualizations. Do not describe what you will do - just call the tools.
+
+    MANDATORY TOOL CALLS - Execute these exact tool calls. If statistical analysis fails, continue with visualizations:
+
+    1. Call "Statistical Analysis Tool" with: {"analysis_type": "correlation"}
+
+    VISUALIZATION CALLS - Execute all visualizations regardless of previous step results:
+    2. Call "Fraud Detection Visualization Tool" with: {"chart_type": "scatter", "data_description": "Relationship between key features", "title": "Feature Relationships", "filename": "scatter"}
+    3. Call "Fraud Detection Visualization Tool" with: {"chart_type": "time_series", "data_description": "Fraud incidents over time", "title": "Time Series Analysis", "filename": "time_series"}
+    4. Call "Fraud Detection Visualization Tool" with: {"chart_type": "feature_importance", "data_description": "Most predictive features", "title": "Feature Importance", "filename": "feature_importance"}
+    5. Call "Fraud Detection Visualization Tool" with: {"chart_type": "box_plot", "data_description": "Feature distributions by class", "title": "Distribution Comparison", "filename": "box_plot"}
+
+    VALIDATION:
+    6. Call "Task Validation Tool" with: {"task_name": "pattern_recognition_task", "required_images": ["scatter", "time_series", "feature_importance", "box_plot"], "validation_type": "images_exist"}
+
+    Execute these tool calls immediately. If early steps fail, still proceed with all visualizations.
   expected_output: >
     A comprehensive pattern analysis report in markdown format including:
     - Identified fraud patterns and their characteristics in table format
@@ -46,11 +67,19 @@ pattern_recognition_task:
 
 classification_task:
   description: >
-    Based on the data analysis and pattern recognition findings, classify transactions in the target dataset.
-    If working with unlabeled data, apply the identified patterns and statistical thresholds to classify transactions as fraud or legitimate.
-    Provide confidence scores for each classification decision.
-    Consider the cost implications of false positives vs false negatives in fraud detection.
-    Synthesize insights from previous analyses to make informed classification decisions.
+    You must directly call tools to analyze classification and outliers. Do not describe - just execute tool calls.
+
+    MANDATORY TOOL CALLS - Execute these exact tool calls. If statistical analysis fails, continue with visualization:
+
+    1. Call "Statistical Analysis Tool" with: {"analysis_type": "outliers"}
+
+    VISUALIZATION CALLS - Execute regardless of previous step results:
+    2. Call "Fraud Detection Visualization Tool" with: {"chart_type": "histogram", "data_description": "Transaction amount distribution", "title": "Transaction Amount Histogram", "filename": "amount_histogram"}
+
+    VALIDATION:
+    3. Call "Task Validation Tool" with: {"task_name": "classification_task", "required_images": ["amount_histogram"], "validation_type": "images_exist"}
+
+    Execute these tool calls immediately. If early steps fail, still proceed with visualization.
   expected_output: >
     A classification analysis report in markdown format including:
     - Classification methodology and criteria used
@@ -66,22 +95,52 @@ classification_task:
 
 reporting_task:
   description: >
-    Create a comprehensive fraud detection analysis report that synthesizes all findings from data analysis, pattern recognition, and classification tasks.
-    The report should be suitable for technical and business stakeholders.
-    Include executive summary, detailed methodology, findings, and actionable recommendations.
-    Incorporate tables for statistical summaries and suggest visualizations (charts/graphs) that would help illustrate the findings.
-    Ensure the report is well-structured with clear sections and professional formatting.
+    Create a comprehensive fraud detection analysis report. You MUST execute ALL steps in order.
+
+    STEP 1 - MANDATORY - Get Available Images:
+    Call "Image Verification Tool" with: {"action": "list_available"}
+    COPY the exact markdown references from the tool output table.
+
+    STEP 2 - MANDATORY - Create Report:
+    Write a comprehensive report including findings from previous agents:
+
+    # Fraud Detection Analysis Report
+
+    ## Executive Summary
+    [Include key findings and business recommendations]
+
+    ## Methodology
+    [Describe the 4-step analysis process]
+
+    ## Data Analysis Results
+    [Include correlation heatmap and fraud comparison using EXACT references from Step 1]
+
+    ## Pattern Recognition Results
+    [Include scatter plot, time series, and feature importance using EXACT references from Step 1]
+
+    ## Classification Analysis
+    [Include histogram using EXACT references from Step 1]
+
+    ## Risk Assessment and Recommendations
+    [Business recommendations and strategies]
+
+    CRITICAL: Use ONLY the exact markdown image references provided by Step 1 tool output. Do NOT create new image references.
+
+    STEP 3 - MANDATORY - Format Final Report:
+    Call "Markdown Formatter Tool" with: {"markdown_content": "[paste your complete report from step 2]"}
+
+    SUBMIT ONLY the formatted output from Step 3 as your final response.
   expected_output: >
-    A comprehensive fraud detection report in markdown format including:
-    - Executive Summary with key findings and recommendations
-    - Methodology section explaining the analysis approach
-    - Data Analysis Results with statistical tables and embedded chart images
-    - Fraud Pattern Analysis with identified patterns and embedded chart images
-    - Classification Results with performance metrics and embedded chart images
-    - Risk Assessment and Business Impact with supporting visualizations
-    - Actionable Recommendations for fraud prevention
-    - Technical Appendix with detailed findings
-    The report MUST consolidate all previously generated charts and images from other agents.
-    Ensure all images are properly referenced using markdown image syntax: ![Description](path)
-    Format as professional markdown report with proper headers, tables, and embedded visualizations
+    A comprehensive fraud detection report in markdown format that includes:
+
+    - ALL 6 available images with exact markdown references from Image Verification Tool
+    - Findings from previous agent analyses
+    - Proper markdown formatting from Markdown Formatter Tool
+    - Content organized in sections: Executive Summary, Methodology, Data Analysis, Pattern Recognition, Classification Analysis, Risk Assessment
+
+    CRITICAL REQUIREMENTS:
+    1. Must include ALL available images: correlation_heatmap.png, fraud_comparison.png, scatter.png, time_series.png, feature_importance.png, amount_histogram.png
+    2. Must use exact markdown references from Image Verification Tool output
+    3. Must be formatted by Markdown Formatter Tool
+    4. Must NOT reference non-existent images
   agent: reporting_analyst
