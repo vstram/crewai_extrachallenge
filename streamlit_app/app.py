@@ -10,6 +10,8 @@ sys.path.insert(0, parent_dir)
 
 # Import components and utilities
 from components.dataset_config import render_dataset_configuration, render_dataset_status
+from components.report_generator import render_report_generation, render_phase_2_status
+from components.chat_interface import render_chat_interface, render_phase_3_status
 from utils.session_manager import SessionManager
 
 
@@ -87,6 +89,12 @@ def render_sidebar():
     # Dataset status
     render_dataset_status()
 
+    # Phase 2 status
+    render_phase_2_status()
+
+    # Phase 3 status
+    render_phase_3_status()
+
     st.sidebar.markdown("---")
 
     # Reset button
@@ -135,33 +143,13 @@ def render_phase_1():
 
 
 def render_phase_2():
-    """Render Phase 2: Report Generation (placeholder for now)."""
-    st.header("Phase 2: Report Generation")
-    st.info("🚧 Phase 2 implementation coming soon...")
-
-    dataset_info = SessionManager.get_dataset_info()
-    csv_path = SessionManager.get_csv_path()
-
-    st.write("**Ready for analysis:**")
-    st.write(f"- Dataset: {os.path.basename(csv_path)}")
-    st.write(f"- Rows: {dataset_info.get('rows', 0):,}")
-    st.write(f"- Columns: {dataset_info.get('columns', 0)}")
-
-    # Placeholder button for Phase 2
-    if st.button("🚀 Generate Fraud Detection Report (Coming Soon)", disabled=True):
-        st.info("Phase 2 implementation in progress...")
+    """Render Phase 2: Report Generation."""
+    render_report_generation()
 
 
 def render_phase_3():
-    """Render Phase 3: Interactive Chat (placeholder for now)."""
-    st.header("Phase 3: Interactive Chat")
-    st.info("🚧 Phase 3 implementation coming soon...")
-
-    st.write("**Analysis Complete!**")
-    st.write("Interactive chat interface will be available here to ask questions about your fraud detection results.")
-
-    # Placeholder for chat interface
-    st.text_input("Ask a question about your results...", disabled=True, placeholder="Coming soon...")
+    """Render Phase 3: Interactive Chat."""
+    render_chat_interface()
 
 
 if __name__ == "__main__":

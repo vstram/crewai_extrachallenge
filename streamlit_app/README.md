@@ -10,17 +10,19 @@ A user-friendly Streamlit interface for the CrewAI fraud detection system.
 - Dataset statistics and column verification
 - Interactive configuration confirmation
 
-### Phase 2: Report Generation 🚧
-- Progress tracking during analysis
-- Real-time agent status updates
-- Generated report display
-- *Coming soon in next implementation phase*
+### Phase 2: Report Generation ✅
+- CrewAI integration with progress tracking
+- Real-time agent status updates during analysis
+- Generated report display with markdown formatting
+- Visualization gallery with downloadable charts
+- Error handling and environment validation
 
-### Phase 3: Interactive Chat 🚧
+### Phase 3: Interactive Chat ✅
 - Chat interface for follow-up questions
-- LLM integration with fraud detection context
-- Quick action buttons for common queries
-- *Coming soon in next implementation phase*
+- Quick action buttons for common queries (statistics, patterns, recommendations)
+- Chat history with conversation memory
+- Context-aware responses based on analysis results
+- *Note: Uses placeholder responses; full CrewAI agent integration available for enhancement*
 
 ## Installation
 
@@ -36,7 +38,7 @@ streamlit run app.py
 
 ## Usage
 
-### Phase 1: Configure Dataset
+### Phase 1: Configure Dataset ✅
 
 1. **Choose Input Method:**
    - **File Path**: Enter path to existing CSV file
@@ -51,6 +53,39 @@ streamlit run app.py
    - Review dataset statistics
    - Preview first 10 rows
    - Confirm configuration to proceed
+
+### Phase 2: Generate Report ✅
+
+1. **Environment Check:**
+   - Validates CrewAI environment setup
+   - Checks for Ollama or OpenAI API configuration
+   - Provides setup guidance if needed
+
+2. **Analysis Execution:**
+   - Real-time progress tracking (0-100%)
+   - Agent status updates (Data Analyst → Pattern Recognition → Classification → Reporting)
+   - Estimated completion time based on dataset size
+
+3. **Results Display:**
+   - Generated markdown report with proper formatting
+   - Visualization gallery (correlation heatmap, fraud comparison, etc.)
+   - Download buttons for report and images
+   - Analysis summary metrics
+
+### Phase 3: Interactive Chat ✅
+
+1. **Quick Actions:**
+   - Statistics overview
+   - Pattern explanations
+   - Risk assessment
+   - Feature analysis
+   - Prevention recommendations
+
+2. **Chat Interface:**
+   - Natural language questions about results
+   - Context-aware responses based on analysis
+   - Chat history with conversation memory
+   - Clear and restart options
 
 ### Dataset Requirements
 
@@ -83,13 +118,38 @@ streamlit_app/
 └── requirements.txt       # Dependencies
 ```
 
+## Environment Setup
+
+### For CrewAI Integration (Phase 2)
+
+**Option 1: Using Ollama (Recommended)**
+```bash
+# Install Ollama
+curl -fsSL https://ollama.ai/install.sh | sh
+
+# Start Ollama service
+ollama serve
+
+# Pull required model
+ollama pull llama3.1:8b
+```
+
+**Option 2: Using OpenAI**
+```bash
+# Set your OpenAI API key
+export OPENAI_API_KEY="your-api-key-here"
+```
+
 ## Development
 
 ### Running in Development Mode
 
 ```bash
 # From the streamlit_app directory
-streamlit run app.py --server.runOnSave true
+./run_app.sh
+
+# Or directly:
+uv run streamlit run app.py
 ```
 
 ### Adding New Components
@@ -100,9 +160,13 @@ streamlit run app.py --server.runOnSave true
 
 ## Next Steps
 
-- **Phase 2**: Implement CrewAI integration for report generation
-- **Phase 3**: Add interactive chat interface
-- **Enhancements**: Progress tracking, error handling, result export
+### Potential Enhancements
+- **Enhanced Chat**: Full CrewAI agent integration for chat responses
+- **Custom Analysis**: User-configurable analysis parameters
+- **Batch Processing**: Multiple dataset analysis
+- **Export Options**: PDF report generation, data export
+- **Performance Optimization**: Async processing, caching
+- **Deployment**: Docker containerization, cloud deployment
 
 ## Troubleshooting
 
