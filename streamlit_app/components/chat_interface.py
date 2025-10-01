@@ -8,18 +8,45 @@ current_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, current_dir)
 
 from utils.session_manager import SessionManager
+from utils.chat_agent import ChatAnalystAgent, QuickResponseHandler
+
+
+def _get_chat_handler() -> QuickResponseHandler:
+    """Get or create the chat handler for this session."""
+    if 'chat_handler' not in st.session_state:
+        # Initialize chat handler with current analysis results
+        dataset_path = SessionManager.get_csv_path()
+        analysis_results = SessionManager.get_analysis_results()
+        dataset_info = SessionManager.get_dataset_info()
+
+        # Include dataset info in analysis results for context
+        if analysis_results and dataset_info:
+            analysis_results['dataset_info'] = dataset_info
+
+        st.session_state.chat_handler = QuickResponseHandler(dataset_path, analysis_results or {})
+
+    return st.session_state.chat_handler
 
 
 def render_chat_interface() -> None:
     """Render the interactive chat interface (Phase 3)."""
-    st.header("💬 Phase 3: Interactive Chat")
+    st.header("💬 Phase 3: AI-Powered Interactive Chat")
 
     # Check if analysis is complete
     if not SessionManager.is_analysis_complete():
         st.warning("⚠️ Complete the fraud detection analysis first to enable chat.")
         return
 
-    st.write("Ask questions about your fraud detection results and get insights from the AI agents.")
+    st.write("🤖 **Ask questions about your fraud detection results and get detailed insights from AI agents.**")
+
+    # Show enhanced features
+    st.info("""
+    ✨ **Enhanced AI Features:**
+    • Context-aware responses based on your specific dataset
+    • Real-time analysis using CrewAI fraud detection agents
+    • Access to CSV data exploration and statistical analysis
+    • Actionable insights and recommendations
+    """)
 
     # Quick action buttons
     _render_quick_actions()
@@ -34,35 +61,36 @@ def render_chat_interface() -> None:
 def _render_quick_actions() -> None:
     """Render quick action buttons for common questions."""
     st.subheader("🚀 Quick Questions")
+    st.write("Click any button below to get detailed AI-powered insights:")
 
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        if st.button("📊 Show Statistics", use_container_width=True):
-            _ask_question("Can you provide additional statistical insights about the dataset?")
+        if st.button("📊 Show Statistics", use_container_width=True, help="Get comprehensive dataset statistics and insights"):
+            _ask_quick_question("statistics")
 
     with col2:
-        if st.button("🔍 Explain Patterns", use_container_width=True):
-            _ask_question("What are the most significant fraud patterns you found?")
+        if st.button("🔍 Explain Patterns", use_container_width=True, help="Discover fraud patterns and indicators"):
+            _ask_quick_question("patterns")
 
     with col3:
-        if st.button("💡 Recommendations", use_container_width=True):
-            _ask_question("What are your top recommendations for fraud prevention?")
+        if st.button("💡 Recommendations", use_container_width=True, help="Get fraud prevention recommendations"):
+            _ask_quick_question("recommendations")
 
     # Additional quick actions
     col4, col5, col6 = st.columns(3)
 
     with col4:
-        if st.button("📈 Risk Assessment", use_container_width=True):
-            _ask_question("How should we assess risk for different transaction types?")
+        if st.button("📈 Risk Assessment", use_container_width=True, help="Learn about risk factors and scoring"):
+            _ask_quick_question("risk")
 
     with col5:
-        if st.button("🎯 Feature Analysis", use_container_width=True):
-            _ask_question("Which features are most important for fraud detection?")
+        if st.button("🎯 Feature Analysis", use_container_width=True, help="Understand feature importance and contributions"):
+            _ask_quick_question("features")
 
     with col6:
-        if st.button("⚙️ Model Performance", use_container_width=True):
-            _ask_question("How well did the classification model perform?")
+        if st.button("⚙️ Model Performance", use_container_width=True, help="Evaluate model accuracy and performance"):
+            _ask_quick_question("performance")
 
 
 def _render_chat_history() -> None:
@@ -95,12 +123,20 @@ def _render_chat_input() -> None:
 
 
 def _ask_question(question: str) -> None:
-    """Process a user question and generate response."""
+    """Process a user question and generate response using CrewAI agents."""
     # Add user message to history
     SessionManager.add_chat_message("user", question)
 
-    # Generate response (placeholder for now - will integrate with CrewAI agents in future)
-    response = _generate_response(question)
+    # Show loading message
+    with st.spinner("🤖 AI Agent is analyzing your question..."):
+        try:
+            # Get chat handler and generate response using CrewAI agents
+            chat_handler = _get_chat_handler()
+            response = chat_handler.chat_agent.ask_question(question)
+        except Exception as e:
+            # Fallback to placeholder response if agent fails
+            st.error(f"Agent temporarily unavailable: {str(e)}")
+            response = _generate_fallback_response(question)
 
     # Add assistant response to history
     SessionManager.add_chat_message("assistant", response)
@@ -109,93 +145,106 @@ def _ask_question(question: str) -> None:
     st.rerun()
 
 
-def _generate_response(question: str) -> str:
-    """Generate response to user question (placeholder implementation)."""
+def _ask_quick_question(question_type: str) -> None:
+    """Process a quick action question using specialized handlers."""
+    # Map question types to user-friendly messages
+    question_map = {
+        "statistics": "📊 Show me comprehensive statistics about the dataset",
+        "patterns": "🔍 Explain the most significant fraud patterns you found",
+        "recommendations": "💡 What are your top recommendations for fraud prevention?",
+        "risk": "📈 How should we assess risk for different transaction types?",
+        "features": "🎯 Which features are most important for fraud detection?",
+        "performance": "⚙️ How well did the classification model perform?"
+    }
+
+    question = question_map.get(question_type, question_type)
+
+    # Add user message to history
+    SessionManager.add_chat_message("user", question)
+
+    # Show loading message
+    with st.spinner("🤖 AI Agent is analyzing your question..."):
+        try:
+            # Get chat handler and use specialized methods
+            chat_handler = _get_chat_handler()
+
+            if question_type == "statistics":
+                response = chat_handler.get_statistics_overview()
+            elif question_type == "patterns":
+                response = chat_handler.explain_fraud_patterns()
+            elif question_type == "recommendations":
+                response = chat_handler.get_prevention_recommendations()
+            elif question_type == "risk":
+                response = chat_handler.assess_risk_factors()
+            elif question_type == "features":
+                response = chat_handler.analyze_feature_importance()
+            elif question_type == "performance":
+                response = chat_handler.evaluate_model_performance()
+            else:
+                response = chat_handler.chat_agent.ask_question(question)
+
+        except Exception as e:
+            # Fallback to placeholder response if agent fails
+            st.error(f"Agent temporarily unavailable: {str(e)}")
+            response = _generate_fallback_response(question)
+
+    # Add assistant response to history
+    SessionManager.add_chat_message("assistant", response)
+
+    # Rerun to update chat display
+    st.rerun()
+
+
+def _generate_fallback_response(question: str) -> str:
+    """Generate fallback response when CrewAI agents are unavailable."""
     # Get analysis results for context
     results = SessionManager.get_analysis_results()
     dataset_info = SessionManager.get_dataset_info()
 
-    # Simple response generation based on question content
-    question_lower = question.lower()
+    return f"""⚠️ **AI Agent Temporarily Unavailable**
 
-    if "statistic" in question_lower or "data" in question_lower:
-        rows = dataset_info.get('rows', 0)
-        columns = dataset_info.get('columns', 0)
-        images = results.get('images_found', 0)
+I'm experiencing temporary issues connecting to the AI analysis agents. Here's basic information about your analysis:
 
-        return f"""📊 **Dataset Statistics:**
+**Analysis Summary:**
+- **Dataset:** {dataset_info.get('rows', 0):,} transactions analyzed
+- **Features:** {dataset_info.get('columns', 0)} columns processed
+- **Visualizations:** {results.get('images_found', 0)} charts generated
+- **Analysis Type:** {'Supervised Learning' if dataset_info.get('has_class_column') else 'Unsupervised Pattern Detection'}
 
-- **Total Transactions:** {rows:,}
-- **Features:** {columns} columns
-- **Visualizations Generated:** {images} charts
-- **Analysis Type:** {'Supervised' if dataset_info.get('has_class_column') else 'Unsupervised'}
+**Your Question:** "{question}"
 
-The analysis covered data quality assessment, correlation analysis, pattern recognition, and classification modeling."""
+**Suggested Actions:**
+1. **Try again** - The agents may be available shortly
+2. **Use quick action buttons** - These provide structured queries
+3. **Review the generated report** - Check Phase 2 results for detailed insights
+4. **Check connectivity** - Ensure CrewAI environment is properly configured
 
-    elif "pattern" in question_lower or "fraud" in question_lower:
-        return """🔍 **Key Fraud Patterns Identified:**
-
-Based on the analysis, the most significant fraud indicators include:
-
-1. **Amount Patterns:** Unusual transaction amounts (very high or very low)
-2. **Temporal Patterns:** Transactions at unusual hours or rapid sequences
-3. **Feature Correlations:** Specific combinations of PCA features that indicate fraud
-4. **Statistical Outliers:** Transactions that deviate significantly from normal patterns
-
-The correlation heatmap and feature importance charts provide visual evidence of these patterns."""
-
-    elif "recommend" in question_lower or "prevent" in question_lower:
-        return """💡 **Fraud Prevention Recommendations:**
-
-1. **Real-time Monitoring:** Implement alerts for transactions matching identified patterns
-2. **Risk Scoring:** Use the feature importance rankings to create risk scores
-3. **Threshold Adjustment:** Set appropriate thresholds based on business tolerance
-4. **Continuous Learning:** Regular model updates with new fraud examples
-
-The generated visualizations can guide the implementation of these prevention measures."""
-
-    elif "performance" in question_lower or "model" in question_lower:
-        return """⚙️ **Model Performance Analysis:**
-
-The fraud detection analysis evaluated multiple aspects:
-
-- **Classification Accuracy:** Model performance on labeled data (if available)
-- **Feature Importance:** Ranking of most predictive features
-- **Outlier Detection:** Identification of anomalous transactions
-- **Pattern Recognition:** Discovery of fraud indicators
-
-Review the generated charts for detailed performance metrics and confidence distributions."""
-
-    else:
-        return f"""🤖 **Analysis Response:**
-
-I understand you're asking about: "{question}"
-
-Based on your fraud detection analysis:
-- **{results.get('images_found', 0)} visualizations** were generated
-- **{dataset_info.get('rows', 0):,} transactions** were analyzed
-- **Statistical and pattern analysis** was completed
-
-For more specific insights, try using the quick action buttons above or ask about:
-- Dataset statistics
-- Fraud patterns
-- Prevention recommendations
-- Model performance
-
-*Note: This is a placeholder response. Full CrewAI agent integration coming in future updates.*"""
+*The AI agents provide much more detailed and context-aware responses when available.*"""
 
 
 def render_phase_3_status():
     """Render Phase 3 status in sidebar."""
     if SessionManager.is_analysis_complete():
-        st.sidebar.success("✅ Chat Available")
+        st.sidebar.success("✅ AI Chat Available")
 
         chat_count = len(SessionManager.get_chat_history())
         if chat_count > 0:
             st.sidebar.write(f"**Messages:** {chat_count}")
         else:
-            st.sidebar.write("**Status:** Ready for questions")
+            st.sidebar.write("**Status:** AI agents ready")
+
+        # Show AI capabilities
+        with st.sidebar.expander("🤖 AI Features", expanded=False):
+            st.write("**Available AI Agents:**")
+            st.write("• Fraud Detection Analyst")
+            st.write("• CSV Data Explorer")
+            st.write("• Statistical Analyzer")
+            st.write("")
+            st.write("**Capabilities:**")
+            st.write("• Context-aware responses")
+            st.write("• Real-time data queries")
+            st.write("• Expert fraud insights")
 
     else:
-        st.sidebar.info("💬 Chat Pending")
-        st.sidebar.write("Complete analysis to enable chat")
+        st.sidebar.info("🤖 AI Chat Pending")
+        st.sidebar.write("Complete analysis to enable AI chat")

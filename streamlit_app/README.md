@@ -17,12 +17,14 @@ A user-friendly Streamlit interface for the CrewAI fraud detection system.
 - Visualization gallery with downloadable charts
 - Error handling and environment validation
 
-### Phase 3: Interactive Chat ✅
-- Chat interface for follow-up questions
-- Quick action buttons for common queries (statistics, patterns, recommendations)
-- Chat history with conversation memory
-- Context-aware responses based on analysis results
-- *Note: Uses placeholder responses; full CrewAI agent integration available for enhancement*
+### Phase 3: AI-Powered Interactive Chat ✅
+- **CrewAI Agent Integration**: Real AI agents provide context-aware responses
+- **Intelligent Q&A**: Specialized fraud detection analyst agent with CSV search capabilities
+- **Quick Action Buttons**: Six specialized response handlers (statistics, patterns, recommendations, risk, features, performance)
+- **Context-Aware Responses**: Access to complete analysis results, dataset info, and generated reports
+- **Conversation Memory**: Chat history with session persistence
+- **Fallback Handling**: Graceful degradation when agents are unavailable
+- **Real-time Analysis**: Agents can query the dataset directly for specific insights
 
 ## Installation
 
@@ -72,20 +74,23 @@ streamlit run app.py
    - Download buttons for report and images
    - Analysis summary metrics
 
-### Phase 3: Interactive Chat ✅
+### Phase 3: AI-Powered Interactive Chat ✅
 
-1. **Quick Actions:**
-   - Statistics overview
-   - Pattern explanations
-   - Risk assessment
-   - Feature analysis
-   - Prevention recommendations
+1. **Enhanced Quick Actions:**
+   - **📊 Statistics**: AI-powered comprehensive dataset analysis
+   - **🔍 Patterns**: Detailed fraud pattern explanations with evidence
+   - **💡 Recommendations**: Actionable prevention strategies
+   - **📈 Risk Assessment**: Advanced risk scoring methodologies
+   - **🎯 Feature Analysis**: Deep dive into feature importance and PCA components
+   - **⚙️ Performance**: Model evaluation and accuracy metrics
 
-2. **Chat Interface:**
-   - Natural language questions about results
-   - Context-aware responses based on analysis
-   - Chat history with conversation memory
-   - Clear and restart options
+2. **Intelligent Chat Interface:**
+   - **AI Agent Responses**: Real CrewAI fraud detection agents provide expert insights
+   - **CSV Data Access**: Agents can query your dataset directly for specific information
+   - **Context-Aware Analysis**: Responses based on your specific analysis results and dataset
+   - **Natural Language Processing**: Ask complex questions in plain English
+   - **Conversation Memory**: Maintains context throughout the conversation
+   - **Fallback Support**: Graceful handling when agents are temporarily unavailable
 
 ### Dataset Requirements
 
@@ -109,18 +114,23 @@ Time,V1,V2,V3,Amount,Class
 streamlit_app/
 ├── app.py                 # Main Streamlit application
 ├── components/
-│   └── dataset_config.py  # Dataset configuration component
+│   ├── dataset_config.py  # Dataset configuration component
+│   ├── report_generator.py# Report generation component (Phase 2)
+│   └── chat_interface.py  # AI-powered chat interface (Phase 3)
 ├── utils/
 │   ├── file_validator.py  # CSV validation utilities
-│   └── session_manager.py # Session state management
+│   ├── session_manager.py # Session state management
+│   ├── crew_runner.py     # CrewAI integration wrapper
+│   └── chat_agent.py      # AI chat agent implementation
 ├── config/
 │   └── streamlit_config.py# App configuration
+├── run_app.sh            # Application startup script
 └── requirements.txt       # Dependencies
 ```
 
 ## Environment Setup
 
-### For CrewAI Integration (Phase 2)
+### For CrewAI Integration (Phases 2 & 3)
 
 **Option 1: Using Ollama (Recommended)**
 ```bash
