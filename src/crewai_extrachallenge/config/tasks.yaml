@@ -1,22 +1,24 @@
 data_analysis_task:
   description: >
-    CRITICAL: You MUST create 2 specific visualizations. Do not describe - just execute tool calls immediately.
+    CRITICAL: You MUST use Database Statistical Analysis Tool for memory-efficient analysis, then create visualizations.
 
-    PRIORITY VISUALIZATION CALLS - These are MANDATORY and MUST succeed:
+    PHASE 1 - DATABASE STATISTICAL ANALYSIS (MANDATORY):
 
-    1. Call "Fraud Detection Visualization Tool" with: {"chart_type": "fraud_comparison", "data_description": "Fraud vs legitimate counts", "title": "Transaction Class Distribution", "filename": "fraud_comparison"}
+    1. Call "Database Statistical Analysis Tool" with: {"analysis_type": "descriptive"}
+    2. Call "Database Statistical Analysis Tool" with: {"analysis_type": "data_quality"}
+    3. Call "Database Statistical Analysis Tool" with: {"analysis_type": "distribution", "target_column": "Class"}
 
-    2. Call "Fraud Detection Visualization Tool" with: {"chart_type": "correlation_heatmap", "data_description": "Feature correlations", "title": "Feature Correlation Matrix", "filename": "correlation_heatmap"}
+    PHASE 2 - VISUALIZATIONS (MANDATORY):
 
-    OPTIONAL STATISTICAL ANALYSIS (can fail):
-    3. Call "Statistical Analysis Tool" with: {"analysis_type": "data_quality"}
-    4. Call "Statistical Analysis Tool" with: {"analysis_type": "descriptive"}
-    5. Call "Statistical Analysis Tool" with: {"analysis_type": "distribution"}
+    4. Call "Fraud Detection Visualization Tool" with: {"chart_type": "fraud_comparison", "data_description": "Fraud vs legitimate counts", "title": "Transaction Class Distribution", "filename": "fraud_comparison"}
 
-    VALIDATION:
+    5. Call "Fraud Detection Visualization Tool" with: {"chart_type": "correlation_heatmap", "data_description": "Feature correlations", "title": "Feature Correlation Matrix", "filename": "correlation_heatmap"}
+
+    PHASE 3 - VALIDATION:
+
     6. Call "Task Validation Tool" with: {"task_name": "data_analysis_task", "required_images": ["fraud_comparison", "correlation_heatmap"], "validation_type": "images_exist"}
 
-    Execute visualization calls FIRST. Statistical analysis is secondary.
+    Execute database analysis calls FIRST (they are fast and memory-efficient). Then create visualizations.
   expected_output: >
     A detailed statistical analysis report in markdown format including:
     - Dataset overview (number of transactions, features, data types)
@@ -37,7 +39,7 @@ pattern_recognition_task:
 
     MANDATORY TOOL CALLS - Execute these exact tool calls. If statistical analysis fails, continue with visualizations:
 
-    1. Call "Statistical Analysis Tool" with: {"analysis_type": "correlation"}
+    1. Call "Database Statistical Analysis Tool" with: {"analysis_type": "correlation"}
 
     VISUALIZATION CALLS - Execute all visualizations regardless of previous step results:
     2. Call "Fraud Detection Visualization Tool" with: {"chart_type": "scatter", "data_description": "Relationship between key features", "title": "Feature Relationships", "filename": "scatter"}
@@ -71,7 +73,7 @@ classification_task:
 
     MANDATORY TOOL CALLS - Execute these exact tool calls. If statistical analysis fails, continue with visualization:
 
-    1. Call "Statistical Analysis Tool" with: {"analysis_type": "outliers"}
+    1. Call "Database Statistical Analysis Tool" with: {"analysis_type": "outliers"}
 
     VISUALIZATION CALLS - Execute regardless of previous step results:
     2. Call "Fraud Detection Visualization Tool" with: {"chart_type": "histogram", "data_description": "Transaction amount distribution", "title": "Transaction Amount Histogram", "filename": "amount_histogram"}

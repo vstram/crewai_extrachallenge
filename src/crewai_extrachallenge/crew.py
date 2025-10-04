@@ -8,6 +8,9 @@ from .tools.statistical_analysis_tool import StatisticalAnalysisTool
 from .tools.image_verification_tool import ImageVerificationTool
 from .tools.markdown_formatter_tool import MarkdownFormatterTool
 from .tools.task_validation_tool import TaskValidationTool
+# Database-optimized tools
+from .tools.db_statistical_analysis_tool import DBStatisticalAnalysisTool
+from .tools.hybrid_data_tool import HybridDataTool
 import os
 # If you want to run a snippet of code before or after the crew starts,
 # you can use the @before_kickoff and @after_kickoff decorators
@@ -27,10 +30,6 @@ class CrewaiExtrachallenge():
     # Fraud detection agents with specialized tools
     @agent
     def data_analyst(self) -> Agent:
-        # Configure CSVSearchTool with the dataset path
-        dataset_path = os.getenv('DATASET_PATH', 'data/credit_card_transactions.csv')
-        csv_tool = CSVSearchTool(csv=dataset_path)
-
         # LLM configuration for precise analytical work
         analytical_llm = LLM(
             model="ollama/llama3.1:8b",
@@ -41,16 +40,17 @@ class CrewaiExtrachallenge():
         return Agent(
             config=self.agents_config['data_analyst'], # type: ignore[index]
             llm=analytical_llm,
-            tools=[csv_tool, VisualizationTool(), StatisticalAnalysisTool(), TaskValidationTool()],
+            tools=[
+                DBStatisticalAnalysisTool(),  # Database-optimized statistics
+                HybridDataTool(),              # Smart data access (DB or CSV)
+                VisualizationTool(),
+                TaskValidationTool()
+            ],
             verbose=True
         )
 
     @agent
     def pattern_recognition_agent(self) -> Agent:
-        # Configure CSVSearchTool with the dataset path
-        dataset_path = os.getenv('DATASET_PATH', 'data/credit_card_transactions.csv')
-        csv_tool = CSVSearchTool(csv=dataset_path)
-
         # LLM configuration for creative pattern discovery
         pattern_discovery_llm = LLM(
             model="ollama/llama3.1:8b",
@@ -61,7 +61,12 @@ class CrewaiExtrachallenge():
         return Agent(
             config=self.agents_config['pattern_recognition_agent'], # type: ignore[index]
             llm=pattern_discovery_llm,
-            tools=[csv_tool, VisualizationTool(), StatisticalAnalysisTool(), TaskValidationTool()],
+            tools=[
+                DBStatisticalAnalysisTool(),  # Database-optimized correlation & outliers
+                HybridDataTool(),              # Smart data sampling
+                VisualizationTool(),
+                TaskValidationTool()
+            ],
             verbose=True
         )
 
@@ -77,7 +82,12 @@ class CrewaiExtrachallenge():
         return Agent(
             config=self.agents_config['classification_agent'], # type: ignore[index]
             llm=classification_llm,
-            tools=[VisualizationTool(), StatisticalAnalysisTool(), TaskValidationTool()],
+            tools=[
+                DBStatisticalAnalysisTool(),  # Database-optimized outliers & distribution
+                HybridDataTool(),              # Smart data sampling
+                VisualizationTool(),
+                TaskValidationTool()
+            ],
             verbose=True
         )
 
