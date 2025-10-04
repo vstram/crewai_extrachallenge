@@ -54,6 +54,10 @@ def _display_dataset_summary(csv_path: str, dataset_info: Dict[str, Any]) -> Non
     """Display summary of configured dataset."""
     st.subheader("📊 Dataset Summary")
 
+    # Check if using database mode
+    use_database = SessionManager.is_using_database()
+    db_conversion_result = SessionManager.get_db_conversion_result()
+
     col1, col2, col3, col4 = st.columns(4)
 
     with col1:
@@ -66,13 +70,26 @@ def _display_dataset_summary(csv_path: str, dataset_info: Dict[str, Any]) -> Non
         st.metric("📋 Columns", dataset_info.get('columns', 0))
 
     with col4:
-        st.metric("⏱️ Est. Time", estimate_analysis_time(dataset_info))
+        st.metric("⏱️ Est. Time", estimate_analysis_time(dataset_info, use_database))
+
+    # Show mode indicator
+    if use_database:
+        st.success("💾 **Mode:** Database (Optimized for large files)")
+    else:
+        st.info("📄 **Mode:** CSV")
 
     # Additional dataset info
     with st.expander("📋 Dataset Details", expanded=False):
         st.write(f"**Full Path:** `{csv_path}`")
         st.write(f"**File Size:** {dataset_info.get('size_mb', 0)} MB")
         st.write(f"**Memory Usage:** {dataset_info.get('memory_usage_mb', 0)} MB")
+
+        if use_database and db_conversion_result:
+            st.write("**Database Info:**")
+            st.write(f"  • Database: `{db_conversion_result.get('db_path', 'N/A')}`")
+            st.write(f"  • Table: `{db_conversion_result.get('table_name', 'N/A')}`")
+            st.write(f"  • DB Size: {db_conversion_result.get('db_size_mb', 0):.2f} MB")
+            st.write(f"  • Compression: {db_conversion_result.get('compression_ratio', 0):.1%}")
 
         if dataset_info.get('has_class_column', False):
             st.write("**Analysis Type:** Supervised (with fraud labels)")
@@ -135,8 +152,16 @@ def _start_analysis(csv_path: str) -> None:
         # Mark analysis as started
         SessionManager.set_analysis_running(True, "Initializing")
 
-        # Create crew runner
-        crew_runner = StreamlitCrewRunner(csv_path)
+        # Get database info if available
+        use_database = SessionManager.is_using_database()
+        db_conversion_result = SessionManager.get_db_conversion_result()
+
+        # Create crew runner with database support
+        crew_runner = StreamlitCrewRunner(
+            csv_path,
+            use_database=use_database,
+            db_conversion_result=db_conversion_result
+        )
 
         # Store runner in session state for progress tracking
         st.session_state.crew_runner = crew_runner
@@ -152,7 +177,8 @@ def _start_analysis(csv_path: str) -> None:
         thread = crew_runner.run_analysis_async(progress_callback, status_callback)
         st.session_state.analysis_thread = thread
 
-        st.success("✅ Analysis started! Refresh the page to see progress.")
+        mode_msg = "Database mode" if use_database else "CSV mode"
+        st.success(f"✅ Analysis started ({mode_msg})! Refresh the page to see progress.")
         st.rerun()
 
     except Exception as e:

@@ -9,6 +9,7 @@ sys.path.insert(0, current_dir)
 
 from utils.file_validator import CSVValidator, display_file_info, display_preview_data
 from utils.session_manager import SessionManager
+from components.database_converter import DatabaseConverterUI, show_database_converter
 
 
 def render_dataset_configuration() -> bool:
@@ -104,15 +105,41 @@ def _validate_and_configure_dataset(csv_path: str) -> bool:
     with validation_container:
         # Show validation progress
         with st.spinner("Validating dataset..."):
-            is_valid, message, file_info = CSVValidator.validate_csv_file(csv_path)
+            # Use enhanced validation with database recommendation
+            validation_result = CSVValidator.validate_and_prepare(csv_path, offer_db_conversion=True)
 
         # Display validation result
-        if is_valid:
-            st.success(message)
+        if validation_result['valid']:
+            st.success(validation_result['message'])
+
+            file_info = validation_result['file_info']
 
             # Display file information
             st.subheader("📋 Dataset Information")
             display_file_info(file_info)
+
+            # Always convert to database for complete analysis
+            # Only show recommendation UI for large files (≥10MB)
+            db_conversion_result = None
+
+            if validation_result['db_recommended']:
+                # Large file - show recommendation and let user choose
+                st.subheader("⚡ Performance Optimization")
+                db_conversion_result = show_database_converter(
+                    csv_path,
+                    file_info,
+                    validation_result['recommendation']
+                )
+            else:
+                # Small file - convert silently without recommendation UI
+                from components.database_converter import DatabaseConverterUI
+                converter = DatabaseConverterUI()
+
+                with st.spinner("Preparing database for analysis..."):
+                    db_conversion_result = converter.convert_csv_to_database(csv_path)
+
+                if db_conversion_result:
+                    st.info("💾 Dataset converted to database for complete analysis.")
 
             # Display data preview
             st.subheader("👀 Data Preview")
@@ -127,8 +154,12 @@ def _validate_and_configure_dataset(csv_path: str) -> bool:
 
                 with col1:
                     if st.button("🚀 Use This Dataset", type="primary", use_container_width=True):
-                        # Configure session
-                        SessionManager.set_dataset_configured(csv_path, file_info)
+                        # Configure session with database info if converted
+                        SessionManager.set_dataset_configured(
+                            csv_path,
+                            file_info,
+                            db_conversion_result=db_conversion_result
+                        )
                         st.success("✅ Dataset configured successfully!")
                         st.balloons()
                         return True
@@ -142,7 +173,7 @@ def _validate_and_configure_dataset(csv_path: str) -> bool:
                 st.error("❌ Failed to preview dataset")
 
         else:
-            st.error(message)
+            st.error(validation_result['message'])
             _display_validation_help()
 
     return False

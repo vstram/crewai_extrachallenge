@@ -9,6 +9,8 @@ class SessionManager:
     CSV_PATH = 'csv_path'
     DATASET_CONFIGURED = 'dataset_configured'
     DATASET_INFO = 'dataset_info'
+    DB_CONVERSION_RESULT = 'db_conversion_result'  # NEW: Database conversion info
+    USE_DATABASE = 'use_database'  # NEW: Whether to use database mode
     ANALYSIS_RUNNING = 'analysis_running'
     ANALYSIS_COMPLETE = 'analysis_complete'
     ANALYSIS_RESULTS = 'analysis_results'
@@ -23,6 +25,8 @@ class SessionManager:
             SessionManager.CSV_PATH: None,
             SessionManager.DATASET_CONFIGURED: False,
             SessionManager.DATASET_INFO: {},
+            SessionManager.DB_CONVERSION_RESULT: None,
+            SessionManager.USE_DATABASE: False,
             SessionManager.ANALYSIS_RUNNING: False,
             SessionManager.ANALYSIS_COMPLETE: False,
             SessionManager.ANALYSIS_RESULTS: {},
@@ -36,10 +40,23 @@ class SessionManager:
                 st.session_state[key] = default_value
 
     @staticmethod
-    def set_dataset_configured(csv_path: str, dataset_info: Dict[str, Any]):
-        """Mark dataset as configured with path and info."""
+    def set_dataset_configured(
+        csv_path: str,
+        dataset_info: Dict[str, Any],
+        db_conversion_result: Optional[Dict[str, Any]] = None
+    ):
+        """
+        Mark dataset as configured with path and info.
+
+        Args:
+            csv_path: Path to CSV file
+            dataset_info: Dataset information dictionary
+            db_conversion_result: Database conversion result (if converted)
+        """
         st.session_state[SessionManager.CSV_PATH] = csv_path
         st.session_state[SessionManager.DATASET_INFO] = dataset_info
+        st.session_state[SessionManager.DB_CONVERSION_RESULT] = db_conversion_result
+        st.session_state[SessionManager.USE_DATABASE] = db_conversion_result is not None
         st.session_state[SessionManager.DATASET_CONFIGURED] = True
 
     @staticmethod
@@ -47,6 +64,8 @@ class SessionManager:
         """Clear dataset configuration."""
         st.session_state[SessionManager.CSV_PATH] = None
         st.session_state[SessionManager.DATASET_INFO] = {}
+        st.session_state[SessionManager.DB_CONVERSION_RESULT] = None
+        st.session_state[SessionManager.USE_DATABASE] = False
         st.session_state[SessionManager.DATASET_CONFIGURED] = False
 
         # Also clear analysis results if dataset changes
@@ -66,6 +85,16 @@ class SessionManager:
     def get_dataset_info() -> Dict[str, Any]:
         """Get dataset information."""
         return st.session_state.get(SessionManager.DATASET_INFO, {})
+
+    @staticmethod
+    def get_db_conversion_result() -> Optional[Dict[str, Any]]:
+        """Get database conversion result."""
+        return st.session_state.get(SessionManager.DB_CONVERSION_RESULT)
+
+    @staticmethod
+    def is_using_database() -> bool:
+        """Check if using database mode."""
+        return st.session_state.get(SessionManager.USE_DATABASE, False)
 
     @staticmethod
     def set_analysis_running(running: bool, current_agent: str = None):
@@ -142,6 +171,8 @@ class SessionManager:
             SessionManager.CSV_PATH,
             SessionManager.DATASET_CONFIGURED,
             SessionManager.DATASET_INFO,
+            SessionManager.DB_CONVERSION_RESULT,
+            SessionManager.USE_DATABASE,
             SessionManager.ANALYSIS_RUNNING,
             SessionManager.ANALYSIS_COMPLETE,
             SessionManager.ANALYSIS_RESULTS,

@@ -11,13 +11,24 @@ parent_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__f
 sys.path.insert(0, parent_dir)
 
 from src.crewai_extrachallenge.crew import CrewaiExtrachallenge
+from src.crewai_extrachallenge.config.database_config import DatabaseConfig
 
 
 class StreamlitCrewRunner:
     """Wrapper class for running CrewAI fraud detection with Streamlit integration."""
 
-    def __init__(self, dataset_path: str):
+    def __init__(self, dataset_path: str, use_database: bool = False, db_conversion_result: Optional[Dict[str, Any]] = None):
+        """
+        Initialize the crew runner.
+
+        Args:
+            dataset_path: Path to CSV dataset
+            use_database: Whether to use database mode
+            db_conversion_result: Database conversion result (if converted)
+        """
         self.dataset_path = dataset_path
+        self.use_database = use_database
+        self.db_conversion_result = db_conversion_result
         self.current_agent = None
         self.progress = 0
         self.status = "Initializing..."
@@ -51,12 +62,23 @@ class StreamlitCrewRunner:
             # Set environment variable for dataset path
             os.environ['DATASET_PATH'] = self.dataset_path
 
+            # Configure database mode if enabled
+            if self.use_database and self.db_conversion_result:
+                os.environ['USE_DATABASE'] = 'true'
+                db_path = self.db_conversion_result.get('db_path', DatabaseConfig.DB_PATH)
+                os.environ['DB_PATH'] = db_path
+                print(f"StreamlitCrewRunner: Using database mode with {db_path}")
+            else:
+                os.environ['USE_DATABASE'] = 'false'
+                print(f"StreamlitCrewRunner: Using CSV mode")
+
             # Initialize callbacks
             self.progress_callback = progress_callback or (lambda x: None)
             self.status_callback = status_callback or (lambda x: None)
 
             # Phase 1: Initialize CrewAI (10%)
-            self._update_progress(10, "Initializing CrewAI system...")
+            mode_label = "Database" if self.use_database else "CSV"
+            self._update_progress(10, f"Initializing CrewAI system ({mode_label} mode)...")
             crew_instance = CrewaiExtrachallenge()
 
             # Phase 2: Data Analysis (30%)
@@ -89,6 +111,14 @@ class StreamlitCrewRunner:
 
             # Collect results
             results = self._collect_results(result)
+            results['mode'] = 'database' if self.use_database else 'csv'
+            if self.use_database and self.db_conversion_result:
+                results['db_info'] = {
+                    'db_path': self.db_conversion_result.get('db_path'),
+                    'table_name': self.db_conversion_result.get('table_name'),
+                    'row_count': self.db_conversion_result.get('row_count'),
+                    'db_size_mb': self.db_conversion_result.get('db_size_mb')
+                }
             self.results = results
 
             return results
@@ -250,15 +280,36 @@ def validate_crew_environment() -> Tuple[bool, str]:
         return False, f"❌ CrewAI setup error: {str(e)}"
 
 
-def estimate_analysis_time(dataset_info: Dict[str, Any]) -> str:
-    """Estimate analysis time based on dataset characteristics."""
+def estimate_analysis_time(dataset_info: Dict[str, Any], use_database: bool = False) -> str:
+    """
+    Estimate analysis time based on dataset characteristics.
+
+    Args:
+        dataset_info: Dataset information dictionary
+        use_database: Whether using database mode
+
+    Returns:
+        Estimated time string
+    """
     rows = dataset_info.get('rows', 0)
 
-    if rows < 1000:
-        return "~2-3 minutes"
-    elif rows < 10000:
-        return "~3-5 minutes"
-    elif rows < 100000:
-        return "~5-8 minutes"
+    if use_database:
+        # Database mode is faster
+        if rows < 1000:
+            return "~1-2 minutes"
+        elif rows < 10000:
+            return "~2-3 minutes"
+        elif rows < 100000:
+            return "~3-5 minutes"
+        else:
+            return "~5-8 minutes (database optimized)"
     else:
-        return "~8-15 minutes"
+        # CSV mode
+        if rows < 1000:
+            return "~2-3 minutes"
+        elif rows < 10000:
+            return "~3-5 minutes"
+        elif rows < 100000:
+            return "~5-8 minutes"
+        else:
+            return "~8-15 minutes"
