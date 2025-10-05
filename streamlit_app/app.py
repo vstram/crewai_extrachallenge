@@ -97,6 +97,21 @@ def render_sidebar():
 
     st.sidebar.markdown("---")
 
+    # LLM Configuration Info
+    with st.sidebar.expander("🤖 LLM Configuration", expanded=False):
+        model = os.getenv('MODEL', 'gpt-4-turbo-preview')
+
+        st.markdown(f"""
+        **Current Model:**
+        - Model: `{model}`
+
+        **Temperature Settings:**
+        - Data Analyst: {os.getenv('TEMP_DATA_ANALYST', '0.1')}
+        - Pattern Agent: {os.getenv('TEMP_PATTERN_AGENT', '0.3')}
+        - Classification: {os.getenv('TEMP_CLASSIFICATION', '0.1')}
+        - Reporting: {os.getenv('TEMP_REPORTING', '0.2')}
+        """)
+
     # Reset button
     if st.sidebar.button("🔄 Reset All", help="Clear all data and start over"):
         SessionManager.reset_session()
