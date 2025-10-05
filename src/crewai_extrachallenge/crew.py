@@ -31,12 +31,18 @@ class CrewaiExtrachallenge():
     # Fraud detection agents with specialized tools
     @agent
     def data_analyst(self) -> Agent:
-        # LLM configuration for precise analytical work
-        analytical_llm = LLM(
-            model="ollama/llama3.1:8b",
-            temperature=0.1,  # Low randomness for accurate calculations
-            base_url="http://localhost:11434"
-        )
+        # LLM configuration from .env (model and temperature)
+        model = os.getenv('MODEL', 'gpt-4-turbo-preview')
+
+        # Models that don't support custom temperature (only use default)
+        no_temp_models = ['gpt-5-mini', 'o1-preview', 'o1-mini']
+
+        # Only set temperature if model supports it
+        if any(m in model for m in no_temp_models):
+            analytical_llm = LLM(model=model)
+        else:
+            temperature = float(os.getenv('TEMP_DATA_ANALYST', '0.1'))
+            analytical_llm = LLM(model=model, temperature=temperature)
 
         return Agent(
             config=self.agents_config['data_analyst'], # type: ignore[index]
@@ -52,12 +58,18 @@ class CrewaiExtrachallenge():
 
     @agent
     def pattern_recognition_agent(self) -> Agent:
-        # LLM configuration for creative pattern discovery
-        pattern_discovery_llm = LLM(
-            model="ollama/llama3.1:8b",
-            temperature=0.3,  # Medium randomness for pattern discovery
-            base_url="http://localhost:11434"
-        )
+        # LLM configuration from .env (model and temperature)
+        model = os.getenv('MODEL', 'gpt-4-turbo-preview')
+
+        # Models that don't support custom temperature (only use default)
+        no_temp_models = ['gpt-5-mini', 'o1-preview', 'o1-mini']
+
+        # Only set temperature if model supports it
+        if any(m in model for m in no_temp_models):
+            pattern_discovery_llm = LLM(model=model)
+        else:
+            temperature = float(os.getenv('TEMP_PATTERN_AGENT', '0.3'))
+            pattern_discovery_llm = LLM(model=model, temperature=temperature)
 
         return Agent(
             config=self.agents_config['pattern_recognition_agent'], # type: ignore[index]
@@ -73,12 +85,18 @@ class CrewaiExtrachallenge():
 
     @agent
     def classification_agent(self) -> Agent:
-        # LLM configuration for consistent classification decisions
-        classification_llm = LLM(
-            model="ollama/llama3.1:8b",
-            temperature=0.1,  # Low randomness for reliable classification
-            base_url="http://localhost:11434"
-        )
+        # LLM configuration from .env (model and temperature)
+        model = os.getenv('MODEL', 'gpt-4-turbo-preview')
+
+        # Models that don't support custom temperature (only use default)
+        no_temp_models = ['gpt-5-mini', 'o1-preview', 'o1-mini']
+
+        # Only set temperature if model supports it
+        if any(m in model for m in no_temp_models):
+            classification_llm = LLM(model=model)
+        else:
+            temperature = float(os.getenv('TEMP_CLASSIFICATION', '0.1'))
+            classification_llm = LLM(model=model, temperature=temperature)
 
         return Agent(
             config=self.agents_config['classification_agent'], # type: ignore[index]
@@ -94,12 +112,18 @@ class CrewaiExtrachallenge():
 
     @agent
     def reporting_analyst(self) -> Agent:
-        # LLM configuration for clear communication and reporting
-        reporting_llm = LLM(
-            model="ollama/llama3.1:8b",
-            temperature=0.2,  # Slight creativity for clear explanations
-            base_url="http://localhost:11434"
-        )
+        # LLM configuration from .env (model and temperature)
+        model = os.getenv('MODEL', 'gpt-4-turbo-preview')
+
+        # Models that don't support custom temperature (only use default)
+        no_temp_models = ['gpt-5-mini', 'o1-preview', 'o1-mini']
+
+        # Only set temperature if model supports it
+        if any(m in model for m in no_temp_models):
+            reporting_llm = LLM(model=model)
+        else:
+            temperature = float(os.getenv('TEMP_REPORTING', '0.2'))
+            reporting_llm = LLM(model=model, temperature=temperature)
 
         return Agent(
             config=self.agents_config['reporting_analyst'], # type: ignore[index]
