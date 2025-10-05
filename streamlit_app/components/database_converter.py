@@ -18,6 +18,25 @@ from src.crewai_extrachallenge.utils.csv_to_sqlite import CSVToSQLiteConverter
 from src.crewai_extrachallenge.config.database_config import DatabaseConfig
 
 
+def get_project_root_db_path() -> str:
+    """
+    Get the absolute path to fraud_detection.db in project root.
+
+    This ensures the database is created in the project root directory,
+    not in streamlit_app/ where the Streamlit app runs from.
+
+    Returns:
+        Absolute path to fraud_detection.db in project root
+    """
+    # Navigate from streamlit_app/components/database_converter.py to project root
+    current_file = os.path.abspath(__file__)
+    streamlit_app_components = os.path.dirname(current_file)  # streamlit_app/components
+    streamlit_app = os.path.dirname(streamlit_app_components)  # streamlit_app
+    project_root = os.path.dirname(streamlit_app)  # project root
+
+    return os.path.join(project_root, 'fraud_detection.db')
+
+
 class DatabaseConverterUI:
     """UI component for database conversion with progress tracking."""
 
@@ -79,7 +98,8 @@ class DatabaseConverterUI:
             Conversion statistics dict or None if failed
         """
         if db_path is None:
-            db_path = DatabaseConfig.DB_PATH
+            # Ensure database is created in project root, not streamlit_app/
+            db_path = get_project_root_db_path()
 
         if table_name is None:
             table_name = DatabaseConfig.DB_TABLE
@@ -168,14 +188,18 @@ class DatabaseConverterUI:
             return None
 
     @staticmethod
-    def show_database_info(db_path: str, table_name: str = 'transactions') -> None:
+    def show_database_info(db_path: Optional[str] = None, table_name: str = 'transactions') -> None:
         """
         Display information about existing database.
 
         Args:
-            db_path: Path to database file
+            db_path: Path to database file (default: project_root/fraud_detection.db)
             table_name: Table name to inspect
         """
+        if db_path is None:
+            # Use project root database
+            db_path = get_project_root_db_path()
+
         if not os.path.exists(db_path):
             st.warning(f"Database not found: {db_path}")
             return
@@ -232,7 +256,8 @@ class DatabaseConverterUI:
                 'db_ready': bool
             }
         """
-        db_path = DatabaseConfig.DB_PATH
+        # Ensure we check in project root
+        db_path = get_project_root_db_path()
         db_exists = os.path.exists(db_path)
 
         return {
