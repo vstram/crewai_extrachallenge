@@ -23,10 +23,18 @@ class MarkdownFormatterTool(BaseTool):
         try:
             formatted_content = self._format_markdown(markdown_content)
 
-            # Add validation message for confirmation
+            # Add clear instruction header for the agent
+            instruction_header = (
+                "=== FORMATTED MARKDOWN OUTPUT ===\n"
+                "INSTRUCTIONS: Copy everything BELOW this line and submit as your final response.\n"
+                "DO NOT wrap in backticks or code fences.\n"
+                "=================================\n\n"
+            )
+
+            # Add validation comment in the actual markdown
             validation_msg = "<!-- FORMATTED BY MARKDOWN FORMATTER TOOL -->\n"
 
-            return f"{validation_msg}{formatted_content}"
+            return f"{instruction_header}{validation_msg}{formatted_content}"
 
         except Exception as e:
             return f"Error formatting markdown: {str(e)}\n\nOriginal content:\n{markdown_content}"
@@ -108,7 +116,9 @@ class MarkdownFormatterTool(BaseTool):
                 # Add blank line before image if needed
                 if formatted_lines and formatted_lines[-1].strip() != '':
                     formatted_lines.append('')
-                formatted_lines.append(line)
+                # Fix image path to use ./images/ prefix
+                fixed_line = self._fix_image_path(line)
+                formatted_lines.append(fixed_line)
                 # Add blank line after image if needed
                 if i + 1 < len(lines) and lines[i + 1].strip() != '':
                     formatted_lines.append('')
@@ -136,11 +146,36 @@ class MarkdownFormatterTool(BaseTool):
         while final_lines and final_lines[-1].strip() == '':
             final_lines.pop()
 
-        # Ensure document ends with a single newline
+        # Ensure document ends with a single newline (MD047 compliance)
         if final_lines:
+            final_lines.append('')
+            # Add second empty line to ensure trailing newline is preserved
             final_lines.append('')
 
         return '\n'.join(final_lines)
+
+    def _fix_image_path(self, line: str) -> str:
+        """Fix image paths to use ./images/ prefix."""
+        # Pattern to match image markdown: ![alt text](path)
+        image_pattern = r'!\[(.*?)\]\((.*?)\)'
+
+        def replace_path(match):
+            alt_text = match.group(1)
+            path = match.group(2)
+
+            # Extract just the filename if path contains directory separators
+            if '/' in path:
+                filename = path.split('/')[-1]
+            else:
+                filename = path
+
+            # Ensure path starts with ./images/
+            if not path.startswith('./images/'):
+                return f'![{alt_text}](./images/{filename})'
+            else:
+                return match.group(0)  # Already correct
+
+        return re.sub(image_pattern, replace_path, line)
 
     def _validate_markdown(self, content: str) -> List[str]:
         """Validate markdown and return list of issues found."""

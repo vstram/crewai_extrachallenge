@@ -134,9 +134,15 @@ reporting_task:
     STEP 3 - MANDATORY - Format Final Report:
     Call "Markdown Formatter Tool" with: {"markdown_content": "[paste your complete report from step 2]"}
 
-    SUBMIT ONLY the formatted output from Step 3 as your final response.
+    STEP 4 - MANDATORY - Submit Raw Markdown:
+    Copy the EXACT formatted output from the Markdown Formatter Tool (everything after the delimiter line) and submit it as-is.
+    CRITICAL FORMATTING RULES:
+    - DO NOT wrap the output in triple backticks (```).
+    - DO NOT add any code fences or formatting.
+    - DO NOT remove trailing newlines.
+    - Submit the raw markdown text directly, preserving all whitespace including the trailing newline.
   expected_output: >
-    A comprehensive fraud detection report in markdown format that includes:
+    A comprehensive fraud detection report in RAW MARKDOWN format (NO code fences) that includes:
 
     - ALL 6 available images with exact markdown references from Image Verification Tool
     - Findings from previous agent analyses
@@ -148,4 +154,5 @@ reporting_task:
     2. Must use exact markdown references from Image Verification Tool output
     3. Must be formatted by Markdown Formatter Tool
     4. Must NOT reference non-existent images
+    5. Must be submitted as RAW MARKDOWN - NO triple backticks, NO code fences, NO formatting wrapper
   agent: reporting_analyst
