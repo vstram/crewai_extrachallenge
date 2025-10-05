@@ -1,24 +1,23 @@
 data_analysis_task:
   description: >
-    CRITICAL: You MUST use Database Statistical Analysis Tool for memory-efficient analysis, then create visualizations.
+    CRITICAL: Execute in exact order. Do not skip any step.
 
-    PHASE 1 - DATABASE STATISTICAL ANALYSIS (MANDATORY):
-
+    STEP 1 - DATABASE STATISTICAL ANALYSIS (MANDATORY):
     1. Call "Database Statistical Analysis Tool" with: {"analysis_type": "descriptive"}
     2. Call "Database Statistical Analysis Tool" with: {"analysis_type": "data_quality"}
     3. Call "Database Statistical Analysis Tool" with: {"analysis_type": "distribution", "target_column": "Class"}
 
-    PHASE 2 - VISUALIZATIONS (MANDATORY):
+    STEP 2 - GUARANTEED VISUALIZATIONS (MANDATORY):
+    4. Call "Guaranteed Visualizations Tool" with: {"task_name": "data_analysis_task"}
 
-    4. Call "Fraud Detection Visualization Tool" with: {"chart_type": "fraud_comparison", "data_description": "Fraud vs legitimate counts", "title": "Transaction Class Distribution", "filename": "fraud_comparison"}
+    This single call generates ALL required images:
+    - fraud_comparison.png
+    - correlation_heatmap.png
 
-    5. Call "Fraud Detection Visualization Tool" with: {"chart_type": "correlation_heatmap", "data_description": "Feature correlations", "title": "Feature Correlation Matrix", "filename": "correlation_heatmap"}
+    STEP 3 - VALIDATION (MANDATORY):
+    5. Call "Task Validation Tool" with: {"task_name": "data_analysis_task", "required_images": ["fraud_comparison", "correlation_heatmap"], "validation_type": "images_exist"}
 
-    PHASE 3 - VALIDATION:
-
-    6. Call "Task Validation Tool" with: {"task_name": "data_analysis_task", "required_images": ["fraud_comparison", "correlation_heatmap"], "validation_type": "images_exist"}
-
-    Execute database analysis calls FIRST (they are fast and memory-efficient). Then create visualizations.
+    Execute ALL steps in order. The Guaranteed Visualizations Tool ensures deterministic image generation.
   expected_output: >
     A detailed statistical analysis report in markdown format including:
     - Dataset overview (number of transactions, features, data types)
@@ -35,22 +34,24 @@ data_analysis_task:
 
 pattern_recognition_task:
   description: >
-    You must directly call tools to analyze patterns and create visualizations. Do not describe what you will do - just call the tools.
+    CRITICAL: Execute in exact order. Do not skip any step.
 
-    MANDATORY TOOL CALLS - Execute these exact tool calls. If statistical analysis fails, continue with visualizations:
-
+    STEP 1 - DATABASE CORRELATION ANALYSIS (MANDATORY):
     1. Call "Database Statistical Analysis Tool" with: {"analysis_type": "correlation"}
 
-    VISUALIZATION CALLS - Execute all visualizations regardless of previous step results:
-    2. Call "Fraud Detection Visualization Tool" with: {"chart_type": "scatter", "data_description": "Relationship between key features", "title": "Feature Relationships", "filename": "scatter"}
-    3. Call "Fraud Detection Visualization Tool" with: {"chart_type": "time_series", "data_description": "Fraud incidents over time", "title": "Time Series Analysis", "filename": "time_series"}
-    4. Call "Fraud Detection Visualization Tool" with: {"chart_type": "feature_importance", "data_description": "Most predictive features", "title": "Feature Importance", "filename": "feature_importance"}
-    5. Call "Fraud Detection Visualization Tool" with: {"chart_type": "box_plot", "data_description": "Feature distributions by class", "title": "Distribution Comparison", "filename": "box_plot"}
+    STEP 2 - GUARANTEED VISUALIZATIONS (MANDATORY):
+    2. Call "Guaranteed Visualizations Tool" with: {"task_name": "pattern_recognition_task"}
 
-    VALIDATION:
-    6. Call "Task Validation Tool" with: {"task_name": "pattern_recognition_task", "required_images": ["scatter", "time_series", "feature_importance", "box_plot"], "validation_type": "images_exist"}
+    This single call generates ALL required images:
+    - scatter.png (Feature relationships)
+    - time_series.png (Fraud incidents over time)
+    - feature_importance.png (Most predictive features)
+    - box_plot.png (Distribution comparison)
 
-    Execute these tool calls immediately. If early steps fail, still proceed with all visualizations.
+    STEP 3 - VALIDATION (MANDATORY):
+    3. Call "Task Validation Tool" with: {"task_name": "pattern_recognition_task", "required_images": ["scatter", "time_series", "feature_importance", "box_plot"], "validation_type": "images_exist"}
+
+    Execute ALL steps in order. The Guaranteed Visualizations Tool ensures deterministic image generation.
   expected_output: >
     A comprehensive pattern analysis report in markdown format including:
     - Identified fraud patterns and their characteristics in table format
@@ -69,19 +70,21 @@ pattern_recognition_task:
 
 classification_task:
   description: >
-    You must directly call tools to analyze classification and outliers. Do not describe - just execute tool calls.
+    CRITICAL: Execute in exact order. Do not skip any step.
 
-    MANDATORY TOOL CALLS - Execute these exact tool calls. If statistical analysis fails, continue with visualization:
-
+    STEP 1 - DATABASE OUTLIER ANALYSIS (MANDATORY):
     1. Call "Database Statistical Analysis Tool" with: {"analysis_type": "outliers"}
 
-    VISUALIZATION CALLS - Execute regardless of previous step results:
-    2. Call "Fraud Detection Visualization Tool" with: {"chart_type": "histogram", "data_description": "Transaction amount distribution", "title": "Transaction Amount Histogram", "filename": "amount_histogram"}
+    STEP 2 - GUARANTEED VISUALIZATIONS (MANDATORY):
+    2. Call "Guaranteed Visualizations Tool" with: {"task_name": "classification_task"}
 
-    VALIDATION:
+    This single call generates ALL required images:
+    - amount_histogram.png (Transaction amount distribution)
+
+    STEP 3 - VALIDATION (MANDATORY):
     3. Call "Task Validation Tool" with: {"task_name": "classification_task", "required_images": ["amount_histogram"], "validation_type": "images_exist"}
 
-    Execute these tool calls immediately. If early steps fail, still proceed with visualization.
+    Execute ALL steps in order. The Guaranteed Visualizations Tool ensures deterministic image generation.
   expected_output: >
     A classification analysis report in markdown format including:
     - Classification methodology and criteria used

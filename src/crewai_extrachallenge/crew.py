@@ -8,6 +8,7 @@ from .tools.statistical_analysis_tool import StatisticalAnalysisTool
 from .tools.image_verification_tool import ImageVerificationTool
 from .tools.markdown_formatter_tool import MarkdownFormatterTool
 from .tools.task_validation_tool import TaskValidationTool
+from .tools.guaranteed_visualizations import GuaranteedVisualizationsTool
 # Database-optimized tools
 from .tools.db_statistical_analysis_tool import DBStatisticalAnalysisTool
 from .tools.hybrid_data_tool import HybridDataTool
@@ -43,7 +44,7 @@ class CrewaiExtrachallenge():
             tools=[
                 DBStatisticalAnalysisTool(),  # Database-optimized statistics
                 HybridDataTool(),              # Smart data access (DB or CSV)
-                VisualizationTool(),
+                GuaranteedVisualizationsTool(), # Deterministic visualization generation
                 TaskValidationTool()
             ],
             verbose=True
@@ -64,7 +65,7 @@ class CrewaiExtrachallenge():
             tools=[
                 DBStatisticalAnalysisTool(),  # Database-optimized correlation & outliers
                 HybridDataTool(),              # Smart data sampling
-                VisualizationTool(),
+                GuaranteedVisualizationsTool(), # Deterministic visualization generation
                 TaskValidationTool()
             ],
             verbose=True
@@ -85,7 +86,7 @@ class CrewaiExtrachallenge():
             tools=[
                 DBStatisticalAnalysisTool(),  # Database-optimized outliers & distribution
                 HybridDataTool(),              # Smart data sampling
-                VisualizationTool(),
+                GuaranteedVisualizationsTool(), # Deterministic visualization generation
                 TaskValidationTool()
             ],
             verbose=True
