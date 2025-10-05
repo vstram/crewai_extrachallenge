@@ -157,26 +157,41 @@ class DatabaseConverterUI:
             # Show results
             st.success("✅ Database conversion successful!")
 
+            # Map converter keys to UI expected keys
+            # Converter returns: total_rows, columns, compression_pct, duration_seconds
+            # UI expects: row_count, column_count, compression_ratio, conversion_time
+            row_count = result.get('total_rows', result.get('row_count', 0))
+            column_count = result.get('columns', result.get('column_count', 0))
+            db_size_mb = result.get('db_size_mb', 0)
+            compression_pct = result.get('compression_pct', result.get('compression_ratio', 0))
+            conversion_time = result.get('duration_seconds', result.get('conversion_time', 0))
+
             col1, col2, col3, col4 = st.columns(4)
 
             with col1:
-                st.metric("📊 Rows", f"{result['row_count']:,}")
+                st.metric("📊 Rows", f"{row_count:,}")
 
             with col2:
-                st.metric("📋 Columns", result['column_count'])
+                st.metric("📋 Columns", column_count)
 
             with col3:
-                st.metric("💾 Size", f"{result['db_size_mb']:.2f}MB")
+                st.metric("💾 Size", f"{db_size_mb:.2f}MB")
 
             with col4:
-                st.metric("⚡ Compression", f"{result['compression_ratio']:.1%}")
+                # compression_pct is already a percentage (e.g., 40.5), convert to ratio for display
+                compression_ratio = compression_pct / 100.0 if compression_pct > 1 else compression_pct
+                st.metric("⚡ Compression", f"{compression_ratio:.1%}")
 
-            st.info(f"⏱️ Conversion time: {result['conversion_time']:.2f}s")
+            st.info(f"⏱️ Conversion time: {conversion_time:.2f}s")
 
-            # Add status to result
+            # Normalize result keys for consistency
             result['status'] = 'converted'
             result['db_path'] = db_path
             result['table_name'] = table_name
+            result['row_count'] = row_count
+            result['column_count'] = column_count
+            result['compression_ratio'] = compression_ratio
+            result['conversion_time'] = conversion_time
 
             return result
 

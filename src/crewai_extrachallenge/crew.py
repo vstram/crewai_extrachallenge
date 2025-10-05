@@ -146,7 +146,7 @@ class CrewaiExtrachallenge():
             tasks=self.tasks, # Automatically created by the @task decorator
             process=Process.sequential,
             verbose=True,
-            max_iter=2,  # Further limit iterations to prevent infinite loops
-            max_rpm=10,  # Limit requests per minute
+            max_iter=10,  # Allow sufficient iterations for tool execution (was 2, too restrictive)
+            max_rpm=30,   # Increased to avoid rate limiting with multiple tool calls
             # process=Process.hierarchical, # In case you wanna use that instead https://docs.crewai.com/how-to/Hierarchical/
         )

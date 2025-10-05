@@ -9,7 +9,10 @@ sys.path.insert(0, parent_dir)
 
 from crewai import Agent, Task, Crew
 from crewai.tools.base_tool import BaseTool
-from crewai_tools import CSVSearchTool
+
+# Import database-optimized tools instead of CSVSearchTool
+from src.crewai_extrachallenge.tools.db_statistical_analysis_tool import DBStatisticalAnalysisTool
+from src.crewai_extrachallenge.tools.hybrid_data_tool import HybridDataTool
 
 
 class ChatAnalystAgent:
@@ -21,7 +24,11 @@ class ChatAnalystAgent:
     def __init__(self, dataset_path: str, analysis_results: Dict[str, Any]):
         self.dataset_path = dataset_path
         self.analysis_results = analysis_results
-        self.csv_tool = CSVSearchTool(csv=dataset_path) if os.path.exists(dataset_path) else None
+
+        # Use database-optimized tools instead of CSVSearchTool for better performance
+        # (CSVSearchTool hangs with large CSV files like 144MB datasets)
+        self.db_stats_tool = DBStatisticalAnalysisTool()
+        self.hybrid_data_tool = HybridDataTool()
 
         # Create the chat agent
         self.agent = self._create_chat_agent()
@@ -29,23 +36,26 @@ class ChatAnalystAgent:
     def _create_chat_agent(self) -> Agent:
         """Create the chat analyst agent with appropriate tools and configuration."""
 
-        tools = []
-        if self.csv_tool:
-            tools.append(self.csv_tool)
+        # Use database-optimized tools for efficient large dataset handling
+        tools = [
+            self.db_stats_tool,    # Fast database statistical analysis
+            self.hybrid_data_tool  # Smart data sampling and queries
+        ]
 
         return Agent(
             role="Fraud Detection Chat Analyst",
-            goal="Provide insightful, context-aware answers about fraud detection analysis results and dataset patterns",
+            goal="Provide insightful, context-aware answers about fraud detection analysis results and dataset patterns using database-optimized tools",
             backstory="""You are an expert fraud detection analyst with deep knowledge of credit card transaction patterns,
             statistical analysis, and machine learning techniques. You have just completed a comprehensive fraud detection
             analysis and can answer detailed questions about the results, patterns found, and recommendations for fraud prevention.
 
-            You have access to the analyzed dataset and can perform additional queries as needed to answer user questions.
+            You have access to powerful database-optimized tools that can efficiently query and analyze large datasets (even 150MB+ files).
+            Use the Database Statistical Analysis Tool for statistical queries and the Hybrid Data Tool for smart data sampling.
             Your responses should be accurate, informative, and actionable.""",
             tools=tools,
             verbose=True,
             allow_delegation=False,
-            max_iter=3,
+            max_iter=8,  # Increased from 3 to allow more tool calls
             memory=True
         )
 
@@ -208,13 +218,13 @@ class ChatAnalystAgent:
 - Tools Used: Statistical analysis, pattern recognition, classification modeling
 """)
 
-        # CSV tool availability
-        if self.csv_tool:
-            context_parts.append("""
+        # Database tools availability
+        context_parts.append("""
 **Available Tools:**
-- CSV Search Tool: Can query and explore the dataset for specific patterns
-- Statistical Analysis: Can perform additional calculations on demand
-- Pattern Recognition: Can identify specific fraud indicators
+- Database Statistical Analysis Tool: Fast queries on large datasets (supports 150MB+ files)
+- Hybrid Data Tool: Smart sampling and data exploration
+- Statistical Analysis: Descriptive stats, correlations, outliers, distributions
+- Pattern Recognition: Can identify specific fraud indicators from database
 """)
 
         # Additional context if provided
