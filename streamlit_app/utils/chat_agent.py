@@ -7,7 +7,7 @@ from datetime import datetime
 parent_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, parent_dir)
 
-from crewai import Agent, Task, Crew
+from crewai import Agent, Task, Crew, LLM
 from crewai.tools.base_tool import BaseTool
 
 # Import database-optimized tools instead of CSVSearchTool
@@ -42,6 +42,19 @@ class ChatAnalystAgent:
             self.hybrid_data_tool  # Smart data sampling and queries
         ]
 
+        # Configure LLM to match the main crew configuration
+        model = os.getenv('MODEL', 'gpt-4-turbo-preview')
+
+        # Models that don't support custom temperature
+        no_temp_models = ['gpt-5-mini', 'o1-preview', 'o1-mini']
+
+        # Create LLM with same configuration as main crew
+        if any(m in model for m in no_temp_models):
+            chat_llm = LLM(model=model)
+        else:
+            temperature = float(os.getenv('TEMP_REPORTING', '0.2'))  # Use reporting temperature for chat
+            chat_llm = LLM(model=model, temperature=temperature)
+
         return Agent(
             role="Fraud Detection Chat Analyst",
             goal="Provide insightful, context-aware answers about fraud detection analysis results and dataset patterns using database-optimized tools",
@@ -53,6 +66,7 @@ class ChatAnalystAgent:
             Use the Database Statistical Analysis Tool for statistical queries and the Hybrid Data Tool for smart data sampling.
             Your responses should be accurate, informative, and actionable.""",
             tools=tools,
+            llm=chat_llm,  # Add LLM configuration
             verbose=True,
             allow_delegation=False,
             max_iter=8,  # Increased from 3 to allow more tool calls
