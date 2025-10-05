@@ -13,6 +13,7 @@ from crewai.tools.base_tool import BaseTool
 # Import database-optimized tools instead of CSVSearchTool
 from src.crewai_extrachallenge.tools.db_statistical_analysis_tool import DBStatisticalAnalysisTool
 from src.crewai_extrachallenge.tools.hybrid_data_tool import HybridDataTool
+from src.crewai_extrachallenge.tools.visualization_tool import VisualizationTool
 
 
 class ChatAnalystAgent:
@@ -29,6 +30,7 @@ class ChatAnalystAgent:
         # (CSVSearchTool hangs with large CSV files like 144MB datasets)
         self.db_stats_tool = DBStatisticalAnalysisTool()
         self.hybrid_data_tool = HybridDataTool()
+        self.visualization_tool = VisualizationTool()
 
         # Create the chat agent
         self.agent = self._create_chat_agent()
@@ -38,8 +40,9 @@ class ChatAnalystAgent:
 
         # Use database-optimized tools for efficient large dataset handling
         tools = [
-            self.db_stats_tool,    # Fast database statistical analysis
-            self.hybrid_data_tool  # Smart data sampling and queries
+            self.db_stats_tool,      # Fast database statistical analysis
+            self.hybrid_data_tool,   # Smart data sampling and queries
+            self.visualization_tool  # Dynamic chart generation
         ]
 
         # Configure LLM to match the main crew configuration
@@ -57,19 +60,34 @@ class ChatAnalystAgent:
 
         return Agent(
             role="Fraud Detection Chat Analyst",
-            goal="Provide insightful, context-aware answers about fraud detection analysis results and dataset patterns using database-optimized tools",
+            goal="Provide insightful, context-aware answers about fraud detection analysis results and dataset patterns using database-optimized tools and generate visualizations when requested",
             backstory="""You are an expert fraud detection analyst with deep knowledge of credit card transaction patterns,
             statistical analysis, and machine learning techniques. You have just completed a comprehensive fraud detection
             analysis and can answer detailed questions about the results, patterns found, and recommendations for fraud prevention.
 
             You have access to powerful database-optimized tools that can efficiently query and analyze large datasets (even 150MB+ files).
             Use the Database Statistical Analysis Tool for statistical queries and the Hybrid Data Tool for smart data sampling.
-            Your responses should be accurate, informative, and actionable.""",
+
+            IMPORTANT: You can also generate custom visualizations on-demand using the Fraud Detection Visualization Tool.
+            When users ask for charts, plots, or visualizations, use the tool to create them. Supported chart types:
+            - correlation_heatmap: Feature correlation matrices
+            - fraud_comparison: Compare fraud vs legitimate counts
+            - scatter: Scatter plots of feature relationships
+            - time_series: Temporal fraud patterns
+            - histogram: Distribution analysis
+            - box_plot: Compare distributions by class
+            - feature_importance: Most predictive features
+            - distribution: Amount distributions by class
+
+            After generating a visualization, include the image path in your response using markdown syntax:
+            ![Chart Description](./images/filename.png)
+
+            Your responses should be accurate, informative, and actionable with visual aids when appropriate.""",
             tools=tools,
             llm=chat_llm,  # Add LLM configuration
             verbose=True,
             allow_delegation=False,
-            max_iter=8,  # Increased from 3 to allow more tool calls
+            max_iter=10,  # Increased to allow more tool calls including visualizations
             memory=True
         )
 
@@ -304,4 +322,10 @@ class QuickResponseHandler:
         """Evaluate model performance."""
         return self.chat_agent.ask_question(
             "How well did the fraud detection models perform? What are the accuracy metrics, and what do they mean for practical implementation?"
+        )
+
+    def create_custom_visualization(self) -> str:
+        """Create a custom visualization based on data insights."""
+        return self.chat_agent.ask_question(
+            "Create a custom visualization that helps understand the relationship between transaction amounts and fraud. Generate a scatter plot or distribution chart that shows key patterns. Include the visualization in your response."
         )

@@ -45,6 +45,7 @@ def render_chat_interface() -> None:
     • Context-aware responses based on your specific dataset
     • Real-time analysis using CrewAI fraud detection agents
     • Access to CSV data exploration and statistical analysis
+    • **On-demand visualization generation** - Ask for charts and plots!
     • Actionable insights and recommendations
     """)
 
@@ -89,8 +90,8 @@ def _render_quick_actions() -> None:
             _ask_quick_question("features")
 
     with col6:
-        if st.button("⚙️ Model Performance", use_container_width=True, help="Evaluate model accuracy and performance"):
-            _ask_quick_question("performance")
+        if st.button("📉 Create Visualization", use_container_width=True, help="Generate custom charts and plots"):
+            _ask_quick_question("visualization")
 
 
 def _render_chat_history() -> None:
@@ -106,13 +107,44 @@ def _render_chat_history() -> None:
     # Display chat messages
     for message in chat_history:
         with st.chat_message(message["role"]):
-            st.markdown(message["content"])
+            # Render markdown content
+            content = message["content"]
+            st.markdown(content)
+
+            # Detect and render embedded images
+            _render_embedded_images(content)
 
     # Clear history button
     if len(chat_history) > 0:
         if st.button("🗑️ Clear Chat History", help="Clear all chat messages"):
             SessionManager.clear_chat_history()
             st.rerun()
+
+
+def _render_embedded_images(content: str) -> None:
+    """Detect and render images embedded in chat responses."""
+    import re
+
+    # Pattern to match markdown images: ![alt text](path)
+    image_pattern = r'!\[([^\]]*)\]\(([^\)]+)\)'
+    matches = re.findall(image_pattern, content)
+
+    if matches:
+        for alt_text, image_path in matches:
+            # Convert relative path to absolute path
+            if image_path.startswith('./images/'):
+                # Path relative to reports directory
+                abs_path = os.path.join(os.getcwd(), 'reports', 'images', image_path.replace('./images/', ''))
+            elif image_path.startswith('reports/images/'):
+                # Path from project root
+                abs_path = os.path.join(os.getcwd(), image_path)
+            else:
+                # Assume it's just the filename
+                abs_path = os.path.join(os.getcwd(), 'reports', 'images', image_path)
+
+            # Display image if it exists
+            if os.path.exists(abs_path):
+                st.image(abs_path, caption=alt_text if alt_text else "Generated Visualization", use_container_width=True)
 
 
 def _render_chat_input() -> None:
@@ -154,7 +186,8 @@ def _ask_quick_question(question_type: str) -> None:
         "recommendations": "💡 What are your top recommendations for fraud prevention?",
         "risk": "📈 How should we assess risk for different transaction types?",
         "features": "🎯 Which features are most important for fraud detection?",
-        "performance": "⚙️ How well did the classification model perform?"
+        "performance": "⚙️ How well did the classification model perform?",
+        "visualization": "📉 Create a custom visualization showing the relationship between transaction amounts and fraud probability"
     }
 
     question = question_map.get(question_type, question_type)
@@ -180,6 +213,8 @@ def _ask_quick_question(question_type: str) -> None:
                 response = chat_handler.analyze_feature_importance()
             elif question_type == "performance":
                 response = chat_handler.evaluate_model_performance()
+            elif question_type == "visualization":
+                response = chat_handler.create_custom_visualization()
             else:
                 response = chat_handler.chat_agent.ask_question(question)
 
@@ -239,11 +274,18 @@ def render_phase_3_status():
             st.write("• Fraud Detection Analyst")
             st.write("• CSV Data Explorer")
             st.write("• Statistical Analyzer")
+            st.write("• Visualization Generator")
             st.write("")
             st.write("**Capabilities:**")
             st.write("• Context-aware responses")
             st.write("• Real-time data queries")
             st.write("• Expert fraud insights")
+            st.write("• Custom chart generation")
+            st.write("")
+            st.write("**Try asking:**")
+            st.write("• 'Show me a scatter plot'")
+            st.write("• 'Create a histogram'")
+            st.write("• 'Generate a heatmap'")
 
     else:
         st.sidebar.info("🤖 AI Chat Pending")
