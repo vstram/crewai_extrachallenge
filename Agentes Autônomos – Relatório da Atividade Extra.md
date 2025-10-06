@@ -1,5 +1,9 @@
 # Atividade Extra
 
+Aluno: Vinicius Strugata Ambrosio
+
+email: vstram@gmail.com
+
 ## Framework escolhida
 
 - CrewAI
@@ -30,14 +34,6 @@ Cada Agente pode contar com Tools especializadas em desempenhar determinada tare
 - Nl2SqlTool
 - DBStatisticalAnalisysTool
 
-
-
-
-
-
-
-
-
 ## Exemplos de perguntas e respostas
 
 O aplicativo foi todo desenvolvido em Inglês, de modo a economizar alguns tokens e, devido a testes que fiz, conclui que as LLMs funcionam
@@ -55,7 +51,6 @@ To understand how transaction amounts relate to fraud, I generated a distributio
 
 Transaction Amount Distribution by Class (Fraud vs Legitimate)
 Insights from the Visualization
-
 
 * Fraudulent Transactions:
 
